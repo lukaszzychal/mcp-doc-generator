@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant User as {{user_label}}
+    participant Frontend as {{frontend_label}}
+    participant Gateway as {{gateway_label}}
+    participant AuthService as {{auth_service_label}}
+    participant Database as {{db_label}}
+    
+    User->>Frontend: {{action1_label}}
+    Frontend->>Gateway: {{action2_label}}
+    Gateway->>AuthService: {{action3_label}}
+    
+    AuthService->>Database: {{action4_label}}
+    Database-->>AuthService: {{response1_label}}
+    
+    alt {{condition1_label}}
+        AuthService-->>Gateway: {{success_response}}
+        Gateway-->>Frontend: {{success_token}}
+        Frontend-->>User: {{success_message}}
+    else {{condition2_label}}
+        AuthService-->>Gateway: {{error_response}}
+        Gateway-->>Frontend: {{error_status}}
+        Frontend-->>User: {{error_message}}
+    end
+    
+    Note over User,Database: {{note_text}}
+

@@ -1,0 +1,36 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C4 Container: {{system_name}} - Microservices Architecture
+
+Person(user, "{{user_label}}", "{{user_description}}")
+
+System_Boundary(c1, "{{system_name}}") {
+    Container(api_gateway, "API Gateway", "{{gateway_tech}}", "Routing i load balancing")
+    Container(auth_service, "{{auth_service_name}}", "{{auth_tech}}", "Autoryzacja i autentykacja")
+    Container(user_service, "{{user_service_name}}", "{{user_tech}}", "Zarządzanie użytkownikami")
+    Container(product_service, "{{product_service_name}}", "{{product_tech}}", "Katalog produktów")
+    Container(order_service, "{{order_service_name}}", "{{order_tech}}", "Zarządzanie zamówieniami")
+    ContainerDb(user_db, "{{user_db_name}}", "{{db_tech}}", "Dane użytkowników")
+    ContainerDb(product_db, "{{product_db_name}}", "{{db_tech}}", "Dane produktów")
+    ContainerDb(order_db, "{{order_db_name}}", "{{db_tech}}", "Dane zamówień")
+}
+
+System_Ext(message_queue, "{{queue_name}}", "Message queue ({{queue_tech}})")
+
+Rel(user, api_gateway, "Żądania API", "HTTPS/REST")
+Rel(api_gateway, auth_service, "Weryfikacja tokenu", "HTTP")
+Rel(api_gateway, user_service, "Operacje na użytkownikach", "HTTP")
+Rel(api_gateway, product_service, "Operacje na produktach", "HTTP")
+Rel(api_gateway, order_service, "Operacje na zamówieniach", "HTTP")
+
+Rel(user_service, user_db, "CRUD", "SQL")
+Rel(product_service, product_db, "CRUD", "SQL")
+Rel(order_service, order_db, "CRUD", "SQL")
+
+Rel(order_service, message_queue, "Publikuje eventy", "AMQP")
+Rel(message_queue, user_service, "Subskrypcja eventów", "AMQP")
+
+SHOW_LEGEND()
+@enduml
+

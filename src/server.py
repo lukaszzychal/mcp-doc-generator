@@ -14,7 +14,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 # Import all tool modules
-from tools import plantuml, mermaid, graphviz, drawio, export as export_tools
+from tools import plantuml, mermaid, graphviz, drawio, export as export_tools, templates, smart
 
 # Create MCP server instance
 app = Server("mcp-documentation-server")
@@ -329,6 +329,106 @@ async def list_tools() -> list[Tool]:
         ),
     ])
     
+    # Template Mode tools
+    tools.extend([
+        Tool(
+            name="list_templates",
+            description="List all available diagram templates. Templates provide pre-built diagrams that just need variable substitution.",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+        Tool(
+            name="get_template_info",
+            description="Get information about a specific template including required variables.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "template_name": {
+                        "type": "string",
+                        "description": "Name of the template (e.g., 'c4_ecommerce_basic')"
+                    }
+                },
+                "required": ["template_name"]
+            }
+        ),
+        Tool(
+            name="generate_from_template",
+            description="Generate diagram from a pre-built template. Much easier than writing full code - just fill in the variables! "
+                       "Perfect for common patterns like e-commerce, microservices, API gateway, etc.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "template_name": {
+                        "type": "string",
+                        "description": "Name of template (e.g., 'c4_ecommerce_basic', 'mermaid_sequence_auth')"
+                    },
+                    "variables": {
+                        "type": "object",
+                        "description": "Variables to substitute in template (e.g., {'system_name': 'My Shop'})",
+                        "additionalProperties": {"type": "string"}
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Output file path"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["png", "svg", "pdf"],
+                        "default": "png",
+                        "description": "Output format"
+                    }
+                },
+                "required": ["template_name", "variables", "output_path"]
+            }
+        ),
+    ])
+    
+    # Smart Mode tools
+    tools.extend([
+        Tool(
+            name="get_smart_mode_status",
+            description="Check if Smart Mode (AI-powered) is configured and available. Requires OPENAI_API_KEY.",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+        Tool(
+            name="generate_smart",
+            description="🤖 SMART MODE: Generate diagram from natural language description using AI. "
+                       "Just describe what you want, AI does the rest! Example: 'Create microservices with auth, user, product services'. "
+                       "Cost: ~$0.01-0.02 per diagram. Requires OPENAI_API_KEY environment variable.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Natural language description of what you want to create"
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Output file path"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["png", "svg", "pdf"],
+                        "default": "png",
+                        "description": "Output format"
+                    },
+                    "force_type": {
+                        "type": "string",
+                        "description": "Optional: force specific diagram type (c4_context, flowchart, etc.)"
+                    }
+                },
+                "required": ["prompt", "output_path"]
+            }
+        ),
+    ])
+    
     return tools
 
 
@@ -417,6 +517,60 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 arguments["variables"],
                 arguments["output_path"]
             )
+        
+        # Template Mode tools
+        elif name == "list_templates":
+            available = templates.list_available_templates()
+            result = "📋 Available Diagram Templates:\n\n"
+            
+            if available["c4"]:
+                result += "🏗️  C4 Architecture:\n"
+                for tmpl in available["c4"]:
+                    result += f"   - {tmpl}\n"
+                result += "\n"
+            
+            if available["uml"]:
+                result += "📐 UML Diagrams:\n"
+                for tmpl in available["uml"]:
+                    result += f"   - {tmpl}\n"
+                result += "\n"
+            
+            if available["mermaid"]:
+                result += "📊 Mermaid Diagrams:\n"
+                for tmpl in available["mermaid"]:
+                    result += f"   - {tmpl}\n"
+                result += "\n"
+            
+            if available["graphviz"]:
+                result += "🔗 Graphviz Graphs:\n"
+                for tmpl in available["graphviz"]:
+                    result += f"   - {tmpl}\n"
+            
+            result += "\nℹ️  Use get_template_info('template_name') to see required variables."
+        
+        elif name == "get_template_info":
+            result = await templates.get_template_info(arguments["template_name"])
+        
+        elif name == "generate_from_template":
+            result = await templates.generate_from_template(
+                arguments["template_name"],
+                arguments["variables"],
+                arguments["output_path"],
+                arguments.get("format", "png")
+            )
+        
+        # Smart Mode tools
+        elif name == "get_smart_mode_status":
+            result = await smart.get_smart_mode_status()
+        
+        elif name == "generate_smart":
+            result = await smart.generate_smart(
+                arguments["prompt"],
+                arguments["output_path"],
+                arguments.get("format", "png"),
+                arguments.get("force_type")
+            )
+        
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
         

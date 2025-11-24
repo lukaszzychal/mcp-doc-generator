@@ -1,0 +1,53 @@
+@startuml
+title Domain Model: {{domain_name}}
+
+' Value Objects
+class {{value_object1_name}} <<Value Object>> {
+    - value: {{value_object1_type}}
+    + {{value_object1_name}}(value: {{value_object1_type}})
+    + getValue(): {{value_object1_type}}
+}
+
+class {{value_object2_name}} <<Value Object>> {
+    - value: {{value_object2_type}}
+    + {{value_object2_name}}(value: {{value_object2_type}})
+    + getValue(): {{value_object2_type}}
+}
+
+' Entities
+class {{aggregate_root}} <<Aggregate Root>> {
+    - id: {{id_type}}
+    - {{field1}}: {{field1_type}}
+    - {{field2}}: {{field2_type}}
+    + {{method1}}()
+    + {{method2}}()
+}
+
+class {{entity1_name}} <<Entity>> {
+    - id: {{id_type}}
+    - {{entity1_field1}}: {{entity1_field1_type}}
+    + {{entity1_method1}}()
+}
+
+' Domain Services
+class {{domain_service}} <<Domain Service>> {
+    + {{service_method1}}()
+    + {{service_method2}}()
+}
+
+' Repository
+interface {{repository_interface}} <<Repository>> {
+    + findById(id: {{id_type}}): {{aggregate_root}}
+    + save(entity: {{aggregate_root}}): void
+    + delete(id: {{id_type}}): void
+}
+
+' Relacje
+{{aggregate_root}} *-- {{value_object1_name}}
+{{aggregate_root}} *-- {{value_object2_name}}
+{{aggregate_root}} "1" *-- "*" {{entity1_name}}
+{{domain_service}} ..> {{aggregate_root}}: uses
+{{repository_interface}} ..> {{aggregate_root}}: manages
+
+@enduml
+

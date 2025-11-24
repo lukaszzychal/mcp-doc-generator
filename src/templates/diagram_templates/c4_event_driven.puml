@@ -1,0 +1,34 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C4 Container: {{system_name}} - Event-Driven Architecture
+
+Person(user, "{{user_label}}", "{{user_description}}")
+
+System_Boundary(c1, "{{system_name}}") {
+    Container(web_app, "Web Application", "{{web_tech}}", "Frontend aplikacji")
+    Container(api, "API Service", "{{api_tech}}", "REST API")
+    Container(event_bus, "Event Bus", "{{eventbus_tech}}", "Message broker")
+    
+    Container(producer1, "{{producer1_name}}", "{{producer1_tech}}", "Publikuje: {{producer1_events}}")
+    Container(consumer1, "{{consumer1_name}}", "{{consumer1_tech}}", "Konsumuje: {{consumer1_events}}")
+    Container(consumer2, "{{consumer2_name}}", "{{consumer2_tech}}", "Konsumuje: {{consumer2_events}}")
+    
+    ContainerDb(db, "Database", "{{db_tech}}", "Event Store")
+    ContainerDb(cache, "Cache", "{{cache_tech}}", "Event Cache")
+}
+
+Rel(user, web_app, "Używa", "HTTPS")
+Rel(web_app, api, "API Calls", "HTTPS/REST")
+Rel(api, producer1, "Triggers", "HTTP")
+
+Rel(producer1, event_bus, "Publish events", "{{protocol}}")
+Rel(event_bus, consumer1, "Subscribe", "{{protocol}}")
+Rel(event_bus, consumer2, "Subscribe", "{{protocol}}")
+
+Rel(producer1, db, "Store events", "SQL")
+Rel(event_bus, cache, "Cache", "Redis")
+
+SHOW_LEGEND()
+@enduml
+

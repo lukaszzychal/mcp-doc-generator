@@ -1,0 +1,26 @@
+digraph {{graph_name}} {
+    label="{{graph_title}}"
+    rankdir={{rankdir}}
+    node [shape={{node_shape}}, style=filled]
+    
+    // Services
+    {{service1_id}} [label="{{service1_label}}", fillcolor="{{service1_color}}"]
+    {{service2_id}} [label="{{service2_label}}", fillcolor="{{service2_color}}"]
+    {{service3_id}} [label="{{service3_label}}", fillcolor="{{service3_color}}"]
+    {{service4_id}} [label="{{service4_label}}", fillcolor="{{service4_color}}"]
+    {{service5_id}} [label="{{service5_label}}", fillcolor="{{service5_color}}"]
+    
+    // External Services
+    {{external1_id}} [label="{{external1_label}}", fillcolor="{{external_color}}", shape=box]
+    {{external2_id}} [label="{{external2_label}}", fillcolor="{{external_color}}", shape=box]
+    
+    // Dependencies
+    {{service1_id}} -> {{service2_id}} [label="{{dep1_label}}"]
+    {{service1_id}} -> {{service3_id}} [label="{{dep2_label}}"]
+    {{service2_id}} -> {{service4_id}} [label="{{dep3_label}}"]
+    {{service3_id}} -> {{service4_id}} [label="{{dep4_label}}"]
+    {{service4_id}} -> {{service5_id}} [label="{{dep5_label}}"]
+    {{service2_id}} -> {{external1_id}} [label="{{dep6_label}}", style=dashed]
+    {{service5_id}} -> {{external2_id}} [label="{{dep7_label}}", style=dashed]
+}
+

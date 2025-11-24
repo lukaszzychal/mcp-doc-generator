@@ -1,0 +1,19 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title C4 Context: {{system_name}}
+
+Person(customer, "{{customer_label}}", "Użytkownik końcowy")
+System(main_system, "{{system_name}}", "{{system_description}}")
+System_Ext(payment_gateway, "{{payment_provider}}", "Bramka płatności")
+System_Ext(email_service, "{{email_provider}}", "Serwis email")
+System_Ext(delivery_service, "{{delivery_provider}}", "System dostaw")
+
+Rel(customer, main_system, "Przegląda produkty, składa zamówienia")
+Rel(main_system, payment_gateway, "Przetwarza płatności", "HTTPS/REST")
+Rel(main_system, email_service, "Wysyła potwierdzenia", "SMTP")
+Rel(main_system, delivery_service, "Zarządza dostawami", "REST API")
+
+SHOW_LEGEND()
+@enduml
+

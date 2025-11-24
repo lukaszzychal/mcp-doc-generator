@@ -1,0 +1,31 @@
+flowchart TD
+    Start([{{process_name}}: Start])
+    Submit[{{step1_label}}]
+    Check{{{check1_label}}}
+    
+    Approve[{{approve_label}}]
+    Reject[{{reject_label}}]
+    Review{{{review_label}}}
+    
+    Notify[{{notify_label}}]
+    End([End])
+    
+    Start --> Submit
+    Submit --> Check
+    
+    Check -->|{{check1_yes}}| Review
+    Check -->|{{check1_no}}| Reject
+    
+    Review -->|{{review_approve}}| Approve
+    Review -->|{{review_reject}}| Reject
+    Review -->|{{review_revise}}| Submit
+    
+    Approve --> Notify
+    Reject --> Notify
+    Notify --> End
+    
+    style Start fill:#90EE90
+    style End fill:#FFB6C1
+    style Approve fill:#90EE90
+    style Reject fill:#FF6B6B
+

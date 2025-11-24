@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C4 Container: {{system_name}} - API Gateway Pattern
+
+Person(client, "{{client_label}}", "Klient API")
+
+System_Boundary(c1, "{{system_name}}") {
+    Container(gateway, "API Gateway", "{{gateway_tech}}", "- Routing\\n- Authentication\\n- Rate limiting\\n- Load balancing")
+    Container(service1, "{{service1_name}}", "{{service1_tech}}", "{{service1_description}}")
+    Container(service2, "{{service2_name}}", "{{service2_tech}}", "{{service2_description}}")
+    Container(service3, "{{service3_name}}", "{{service3_tech}}", "{{service3_description}}")
+    ContainerDb(cache, "Cache", "{{cache_tech}}", "Caching layer")
+}
+
+System_Ext(auth_provider, "{{auth_provider}}", "Identity provider")
+System_Ext(monitoring, "{{monitoring_provider}}", "Monitoring & Logging")
+
+Rel(client, gateway, "API Requests", "HTTPS/REST")
+Rel(gateway, auth_provider, "Verify token", "OAuth2/JWT")
+Rel(gateway, service1, "Route /api/v1/{{service1_route}}", "HTTP")
+Rel(gateway, service2, "Route /api/v1/{{service2_route}}", "HTTP")
+Rel(gateway, service3, "Route /api/v1/{{service3_route}}", "HTTP")
+Rel(gateway, cache, "Cache responses", "Redis Protocol")
+Rel(gateway, monitoring, "Metrics & logs", "HTTP")
+
+SHOW_LEGEND()
+@enduml
+

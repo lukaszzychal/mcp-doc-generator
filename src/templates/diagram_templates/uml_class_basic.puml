@@ -1,0 +1,33 @@
+@startuml
+title {{diagram_title}}
+
+' Encje domenowe
+class {{entity1_name}} {
+    - id: {{id_type}}
+    - name: String
+    - {{entity1_field1}}: {{entity1_field1_type}}
+    - {{entity1_field2}}: {{entity1_field2_type}}
+    + {{entity1_method1}}()
+    + {{entity1_method2}}()
+}
+
+class {{entity2_name}} {
+    - id: {{id_type}}
+    - {{entity2_field1}}: {{entity2_field1_type}}
+    - {{entity2_field2}}: {{entity2_field2_type}}
+    + {{entity2_method1}}()
+    + {{entity2_method2}}()
+}
+
+class {{entity3_name}} {
+    - id: {{id_type}}
+    - {{entity3_field1}}: {{entity3_field1_type}}
+    + {{entity3_method1}}()
+}
+
+' Relacje
+{{entity1_name}} "{{rel1_multiplicity1}}" -- "{{rel1_multiplicity2}}" {{entity2_name}}: {{rel1_label}}
+{{entity2_name}} "{{rel2_multiplicity1}}" -- "{{rel2_multiplicity2}}" {{entity3_name}}: {{rel2_label}}
+
+@enduml
+
