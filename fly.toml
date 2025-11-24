@@ -1,0 +1,44 @@
+# Fly.io deployment configuration
+app = "mcp-documentation-server"
+primary_region = "waw" # Warsaw, Poland
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PLANTUML_SERVER = "http://localhost:8080"
+  PYTHONPATH = "/app"
+  PYTHONUNBUFFERED = "1"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "1s"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 1024
+
+[mounts]
+  source = "output_data"
+  destination = "/app/output"
+

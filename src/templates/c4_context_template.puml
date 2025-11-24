@@ -1,0 +1,18 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title {{title}}
+
+' System Context diagram dla: {{system_name}}
+
+Person(user, "{{user_name}}", "{{user_description}}")
+
+System({{system_id}}, "{{system_name}}", "{{system_description}}")
+
+System_Ext({{external_system_id}}, "{{external_system_name}}", "{{external_system_description}}")
+
+Rel(user, {{system_id}}, "{{relationship_description}}")
+Rel({{system_id}}, {{external_system_id}}, "{{external_relationship}}")
+
+@enduml
+

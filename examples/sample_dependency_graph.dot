@@ -1,0 +1,40 @@
+digraph Microservices {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    
+    // Nodes
+    gateway [label="API Gateway", fillcolor="#4A90E2", style="rounded,filled"];
+    auth [label="Auth Service", fillcolor="#7ED321", style="rounded,filled"];
+    product [label="Product Service", fillcolor="#F5A623", style="rounded,filled"];
+    order [label="Order Service", fillcolor="#BD10E0", style="rounded,filled"];
+    payment [label="Payment Service", fillcolor="#50E3C2", style="rounded,filled"];
+    inventory [label="Inventory Service", fillcolor="#F8E71C", style="rounded,filled"];
+    notification [label="Notification Service", fillcolor="#B8E986", style="rounded,filled"];
+    
+    // Databases
+    authdb [label="Auth DB", shape=cylinder, fillcolor="#E8E8E8", style="filled"];
+    productdb [label="Product DB", shape=cylinder, fillcolor="#E8E8E8", style="filled"];
+    orderdb [label="Order DB", shape=cylinder, fillcolor="#E8E8E8", style="filled"];
+    
+    // External
+    external [label="Payment Gateway\n(External)", shape=diamond, fillcolor="#FF6B6B", style="filled"];
+    
+    // Dependencies
+    gateway -> auth [label="autentykacja"];
+    gateway -> product [label="katalog"];
+    gateway -> order [label="zamówienia"];
+    
+    order -> inventory [label="sprawdza\ndostępność"];
+    order -> payment [label="płatność"];
+    order -> notification [label="powiadomienia"];
+    
+    auth -> authdb;
+    product -> productdb;
+    order -> orderdb;
+    
+    payment -> external [label="API", style=dashed];
+    
+    // Legend
+    {rank=same; gateway; auth;}
+}
+
