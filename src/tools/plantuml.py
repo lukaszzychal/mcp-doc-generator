@@ -1,6 +1,7 @@
 """PlantUML diagram generation tools."""
 
 import os
+import re
 import asyncio
 import aiohttp
 from typing import Literal
@@ -11,6 +12,32 @@ from utils.file_manager import ensure_output_directory, write_binary_file
 
 # PlantUML server URL (will use Docker container)
 PLANTUML_SERVER = os.getenv("PLANTUML_SERVER", "http://localhost:8080")
+
+
+def _get_c4_includes(diagram_type: Literal["context", "container", "component", "code"]) -> str:
+    """
+    Get appropriate C4-PlantUML includes for the given diagram type.
+    
+    Args:
+        diagram_type: Type of C4 diagram
+        
+    Returns:
+        String with appropriate !include statements
+    """
+    base_url = "https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/"
+    
+    if diagram_type == "context":
+        return f"!include {base_url}C4_Context.puml\n"
+    elif diagram_type == "container":
+        return f"!include {base_url}C4_Context.puml\n!include {base_url}C4_Container.puml\n"
+    elif diagram_type == "component":
+        return f"!include {base_url}C4_Context.puml\n!include {base_url}C4_Container.puml\n!include {base_url}C4_Component.puml\n"
+    elif diagram_type == "code":
+        # Code level requires all previous levels plus C4_Component.puml (which includes code elements)
+        return f"!include {base_url}C4_Context.puml\n!include {base_url}C4_Container.puml\n!include {base_url}C4_Component.puml\n"
+    else:
+        # Default to context if unknown type
+        return f"!include {base_url}C4_Context.puml\n"
 
 
 async def generate_c4_diagram(
@@ -31,20 +58,34 @@ async def generate_c4_diagram(
     Returns:
         Success message with output path
     """
-    # Add C4-PlantUML includes and wrapper
-    c4_includes = """@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-
-"""
+    # Validate content is not empty
+    if not content or not content.strip():
+        return f"✗ Error: Content is empty. Please provide PlantUML/C4 diagram code."
     
-    # Wrap content if it doesn't have @startuml/@enduml
-    if "@startuml" not in content:
-        full_content = c4_includes + content + "\n@enduml"
-    else:
-        # Insert includes after @startuml
-        full_content = content.replace("@startuml", c4_includes)
+    # Check if content contains actual diagram definitions
+    # C4 diagrams typically contain: Person, System, System_Ext, Rel, etc.
+    c4_keywords = ["Person", "System", "System_Ext", "SystemDb", "SystemQueue", 
+                   "Rel", "Rel_", "Lay_R", "Lay_U", "Lay_D", "Lay_L",
+                   "Container", "ContainerDb", "ContainerQueue", "Component"]
+    has_diagram_content = any(keyword in content for keyword in c4_keywords)
+    
+    if not has_diagram_content:
+        return f"✗ Error: Content does not contain valid C4 diagram definitions. " \
+               f"Expected keywords: Person, System, System_Ext, Rel, Container, Component, etc."
+    
+    # Get appropriate includes for diagram type
+    c4_includes = _get_c4_includes(diagram_type)
+    
+    # Clean content: remove existing @startuml and @enduml if present
+    cleaned_content = content.strip()
+    
+    # Remove @startuml if present (case insensitive, with optional whitespace)
+    cleaned_content = re.sub(r'@startuml\s*', '', cleaned_content, flags=re.IGNORECASE)
+    cleaned_content = re.sub(r'@enduml\s*', '', cleaned_content, flags=re.IGNORECASE)
+    cleaned_content = cleaned_content.strip()
+    
+    # Build complete PlantUML code: @startuml + includes + content + @enduml
+    full_content = f"@startuml\n{c4_includes}{cleaned_content}\n@enduml"
     
     return await _render_plantuml(full_content, output_path, format, f"C4 {diagram_type}")
 
