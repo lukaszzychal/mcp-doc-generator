@@ -162,17 +162,20 @@ git checkout docs-commercial
 
 ## 🔒 Branch Protection
 
-**Protected branches:**
-- ✅ `main` - requires pull request reviews
-- ✅ `full-version` - requires pull request reviews
-- ✅ `docs-commercial` - requires pull request reviews
+**Protected branches (aktualny stan - 2025-11-24):**
+- ✅ `main` - **WŁĄCZONE** (wymagany PR, recenzja wyłączona dla właściciela)
+- ❌ `full-version` - **NIE WŁĄCZONE** (możliwy bezpośredni push)
+- ❌ `docs-commercial` - **NIE WŁĄCZONE** (możliwy bezpośredni push)
 
-**Rules:**
-- ❌ No direct pushes to protected branches
+**Rules dla `main` (chronionego brancha):**
+- ❌ No direct pushes to protected branch
 - ❌ No force push
 - ❌ No deletion
-- ✅ Require pull request with approvals
-- ✅ Require status checks to pass
+- ✅ Require pull request before merge
+- ⚠️ Reviews: Wyłączone (właściciel może merge'ować własne PR)
+- ✅ Enforce for admins (dotyczy również właściciela)
+
+**Uwaga:** `full-version` i `docs-commercial` mogą mieć protection włączone w przyszłości.
 
 ---
 
