@@ -2,12 +2,16 @@
 
 MCP (Model Context Protocol) server for generating technical documentation with diagrams.
 
+> **📢 Status:** Serwer MCP jest obecnie testowany w pracy.
+
 **Language / Język:** [English](#english) | [Polski](#polski)
 
 ---
 
 <a name="english"></a>
 # English
+
+> **📢 Status:** The MCP server is currently being tested in production at work.
 
 ## 🚀 Quick Start
 
@@ -113,6 +117,8 @@ See [LICENSE](LICENSE)
 # Polski
 
 MCP (Model Context Protocol) server do generowania dokumentacji technicznej z diagramami.
+
+> **📢 Status:** Serwer MCP jest obecnie testowany w pracy.
 
 ## 🚀 Szybki Start
 

@@ -4,6 +4,8 @@
 
 Wszystkie fazy projektu zostały pomyślnie zaimplementowane zgodnie z planem!
 
+> **📢 Status:** Serwer MCP jest obecnie testowany w pracy.
+
 ---
 
 ## 📊 Statystyki Projektu
