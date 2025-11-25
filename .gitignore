@@ -54,6 +54,7 @@ tests/output/
 !docs/*.md
 !PROJECT_STRUCTURE.md
 !README.md
+!TODO.md
 
 # Docker
 .env.local
@@ -64,4 +65,7 @@ tests/output/
 # OS
 .DS_Store
 Thumbs.db
+
+# LinkedIn posts (personal use)
+LINKEDIN_POST.md
 
