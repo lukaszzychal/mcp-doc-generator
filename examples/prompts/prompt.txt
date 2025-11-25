@@ -1,0 +1,20 @@
+Generate a C4 context diagram for an e-commerce system with the following components:
+
+External Systems:
+- Users (customers browsing and purchasing)
+- Payment Gateway (Stripe/PayPal)
+- Shipping Service (FedEx/UPS)
+
+System Boundary - E-commerce Platform:
+- Web Application (React frontend)
+- Mobile App (iOS/Android)
+- API Gateway (Node.js)
+- Order Service
+- Inventory Service
+- Database (PostgreSQL)
+
+Show relationships between all components with descriptions.
+
+Save the diagram as PNG to:
+output/test-ecommerce.png
+
