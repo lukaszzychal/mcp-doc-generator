@@ -33,21 +33,59 @@ ENV/
 *~
 
 # Output files
-output/
+output/*
+!output/README.md
+tests/output/
+
+# Generated files (ignore except examples)
 *.png
 *.svg
 *.pdf
 *.docx
+*.md
+
+# But keep examples, templates, and docs
 !templates/*.md
+!examples/generated/*
 !examples/*.png
+!examples/*.puml
+!examples/*.dot
+!examples/*.mmd
+!docs/*.md
+!PROJECT_STRUCTURE.md
+!README.md
+!TODO.md
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+.env.local
+.env.production
+.env.development
+.env.test
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+secrets/
+credentials/
+config.local.*
+*.env.backup
 
 # Docker
-.env.local
+.dockerignore.local
 
 # Logs
 *.log
+*.log.*
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# LinkedIn posts (personal use)
+LINKEDIN_POST.md
 
