@@ -56,11 +56,31 @@ tests/output/
 !README.md
 !TODO.md
 
-# Docker
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
 .env.local
+.env.production
+.env.development
+.env.test
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+secrets/
+credentials/
+config.local.*
+*.env.backup
+
+# Docker
+.dockerignore.local
 
 # Logs
 *.log
+*.log.*
+logs/
 
 # OS
 .DS_Store
