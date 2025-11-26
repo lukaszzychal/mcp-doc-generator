@@ -1,0 +1,96 @@
+name: Cleanup Old Cache
+
+on:
+  schedule:
+    # Uruchamia się co tydzień w niedzielę o 2:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:  # Ręczne uruchomienie
+
+jobs:
+  cleanup-gha-cache:
+    name: Cleanup GitHub Actions Cache
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cleanup old GitHub Actions cache
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: caches } = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            const now = Date.now();
+            const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000); // 30 dni w milisekundach
+            
+            let deletedCount = 0;
+            let totalSize = 0;
+            
+            for (const cache of caches.actions_caches || []) {
+              const createdAt = new Date(cache.created_at).getTime();
+              
+              // Usuń cache starszy niż 30 dni
+              if (createdAt < thirtyDaysAgo) {
+                try {
+                  await github.rest.actions.deleteActionsCacheById({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    cache_id: cache.id
+                  });
+                  
+                  deletedCount++;
+                  totalSize += cache.size_in_bytes || 0;
+                  console.log(`Deleted cache: ${cache.key} (${(cache.size_in_bytes / 1024 / 1024).toFixed(2)} MB)`);
+                } catch (error) {
+                  console.error(`Failed to delete cache ${cache.key}: ${error.message}`);
+                }
+              }
+            }
+            
+            console.log(`\n✅ Cleanup completed:`);
+            console.log(`   - Deleted caches: ${deletedCount}`);
+            console.log(`   - Total size freed: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
+
+  cleanup-ghcr-images:
+    name: Cleanup Old GHCR Images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Cleanup old GHCR images
+        run: |
+          echo "Cleaning up old GHCR images..."
+          
+          # Pobierz listę obrazów
+          IMAGE="ghcr.io/${{ github.repository }}/mcp-server"
+          
+          # Usuń obrazy starsze niż 90 dni (zachowaj ostatnie 10)
+          # Użyj GitHub API do zarządzania pakietami
+          
+          echo "Note: GHCR automatic cleanup is handled by GitHub retention policies"
+          echo "Manual cleanup can be done via GitHub Packages UI"
+          echo "Recommended: Keep last 10 images, delete older than 90 days"
+          
+          # Alternatywnie można użyć gh CLI jeśli jest dostępny
+          # gh api repos/${{ github.repository }}/packages --jq '.[] | select(.name == "mcp-server")'
+

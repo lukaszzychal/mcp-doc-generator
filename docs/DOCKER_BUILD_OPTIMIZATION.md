@@ -156,6 +156,30 @@ Pliki cache są automatycznie tworzone i zarządzane przez skrypt.
 
 ### Wyczyszczenie cache
 
+#### Automatyczne czyszczenie (GitHub Actions)
+
+Workflow `.github/workflows/cleanup-cache.yml` automatycznie:
+- Uruchamia się co tydzień (niedziela 2:00 UTC)
+- Usuwa cache z GitHub Actions starszy niż 30 dni
+- Można uruchomić ręcznie przez `workflow_dispatch`
+
+#### Lokalne czyszczenie
+
+Użyj skryptu `scripts/cleanup-docker-cache.sh`:
+
+```bash
+# Podgląd co zostanie usunięte (bez usuwania)
+./scripts/cleanup-docker-cache.sh --dry-run
+
+# Standardowe czyszczenie
+./scripts/cleanup-docker-cache.sh
+
+# Agresywne czyszczenie (usuwa wszystko nieużywane)
+./scripts/cleanup-docker-cache.sh --aggressive
+```
+
+#### Ręczne czyszczenie
+
 ```bash
 # Usuń lokalny cache
 rm -rf .docker-cache/
@@ -165,6 +189,9 @@ docker builder prune
 
 # Usuń wszystkie nieużywane obrazy
 docker image prune -a
+
+# Pełne czyszczenie (wszystko nieużywane)
+docker system prune -a --volumes
 ```
 
 ## Zaawansowane użycie
@@ -232,7 +259,7 @@ docker compose -f docker-compose.distroless.yml up -d
 
 - [x] Multi-stage build z Distroless dla mniejszych obrazów
 - [x] Integracja z Docker Registry dla współdzielonego cache w zespole (GHCR w ci.yml)
-- [ ] Automatyczne czyszczenie starego cache
+- [x] Automatyczne czyszczenie starego cache (GitHub Actions workflow + lokalny skrypt)
 - [ ] Metryki i raportowanie oszczędności czasu/transferu
 - [ ] Wsparcie dla innych systemów CI/CD (GitLab CI, Jenkins)
 - [ ] Automatyczne testowanie obu wariantów (standardowy i Distroless)
