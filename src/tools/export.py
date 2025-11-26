@@ -38,6 +38,11 @@ def fix_image_paths(content: str, base_dir: Path) -> str:
             absolute_path = Path('/app') / img_path
             return f'![{alt_text}]({absolute_path})'
         
+        # Special handling for ../output/ paths - they should also point to /app/output
+        if img_path.startswith('../output/'):
+            absolute_path = Path('/app') / 'output' / img_path[10:]  # Remove '../output/'
+            return f'![{alt_text}]({absolute_path})'
+        
         # If it's a relative path starting with ../
         if img_path.startswith('../'):
             # Convert to absolute path relative to base_dir
