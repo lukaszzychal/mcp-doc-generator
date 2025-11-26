@@ -1,0 +1,20 @@
+# Gitleaks configuration for MCP Documentation Server
+title = "MCP Documentation Server Secret Detection"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Exclude examples, documentation, and template files with placeholder secrets"
+paths = [
+    "examples/",
+    "docs/",
+    "src/templates/",
+]
+regexes = [
+    "YOUR_TOKEN",
+    "Bearer YOUR_TOKEN",
+    "example\\.com",
+    "api\\.example\\.com",
+    "\\{\\{.*\\}\\}",
+]

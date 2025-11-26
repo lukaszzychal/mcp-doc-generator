@@ -12,6 +12,7 @@ on:
       - 'pyproject.toml'
       - 'requirements.txt'
       - '.github/workflows/**'
+      - '.gitleaks.toml'
   pull_request:
     branches: [main]
     paths:
@@ -23,6 +24,7 @@ on:
       - 'pyproject.toml'
       - 'requirements.txt'
       - '.github/workflows/**'
+      - '.gitleaks.toml'
   workflow_dispatch:
 
 jobs:
@@ -48,6 +50,7 @@ jobs:
             zricethezav/gitleaks:latest \
             detect \
             --source="/path" \
+            --config="/path/.gitleaks.toml" \
             --verbose \
             --exit-code 1
 
