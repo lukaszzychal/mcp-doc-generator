@@ -248,13 +248,17 @@ async def list_tools() -> list[Tool]:
     tools.extend([
         Tool(
             name="export_to_pdf",
-            description="Convert Markdown to PDF using Pandoc. Full Polish language support.",
+            description="Convert Markdown to PDF using Pandoc. Accepts either markdown content string or file path. Full Polish language support.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "markdown_content": {
                         "type": "string",
-                        "description": "Markdown content to convert"
+                        "description": "Markdown content to convert (optional if markdown_file_path is provided)"
+                    },
+                    "markdown_file_path": {
+                        "type": "string",
+                        "description": "Path to markdown file to convert (optional if markdown_content is provided)"
                     },
                     "output_path": {
                         "type": "string",
@@ -274,7 +278,7 @@ async def list_tools() -> list[Tool]:
                         "description": "Include table of contents"
                     }
                 },
-                "required": ["markdown_content", "output_path"]
+                "required": ["output_path"]
             }
         ),
         Tool(
@@ -398,11 +402,12 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         # Export tools
         elif name == "export_to_pdf":
             result = await export_tools.export_to_pdf(
-                arguments["markdown_content"],
-                arguments["output_path"],
-                arguments.get("title"),
-                arguments.get("author"),
-                arguments.get("include_toc", True)
+                markdown_content=arguments.get("markdown_content"),
+                markdown_file_path=arguments.get("markdown_file_path"),
+                output_path=arguments["output_path"],
+                title=arguments.get("title"),
+                author=arguments.get("author"),
+                include_toc=arguments.get("include_toc", True)
             )
         elif name == "export_to_docx":
             result = await export_tools.export_to_docx(

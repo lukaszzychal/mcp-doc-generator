@@ -3,6 +3,7 @@
 import asyncio
 import tempfile
 import os
+import re
 from typing import Optional
 from pathlib import Path
 
@@ -10,18 +11,68 @@ from utils.file_manager import ensure_output_directory, write_file, read_file
 from utils.polish_support import get_pandoc_polish_options, format_polish_date_full
 
 
+def fix_image_paths(content: str, base_dir: Path) -> str:
+    """
+    Fix relative image paths to absolute paths for Pandoc.
+    
+    Args:
+        content: Markdown content with image references
+        base_dir: Base directory for resolving relative paths
+        
+    Returns:
+        Markdown content with fixed image paths
+    """
+    # Pattern to match markdown images: ![alt](../output/image.png) or ![alt](./path/image.png)
+    pattern = r'!\[([^\]]*)\]\(([^)]+)\)'
+    
+    def replace_path(match):
+        alt_text = match.group(1)
+        img_path = match.group(2)
+        
+        # Skip if already absolute or URL
+        if img_path.startswith('http://') or img_path.startswith('https://') or img_path.startswith('/'):
+            return match.group(0)
+        
+        # Special handling for output/ paths - they should point to /app/output
+        if img_path.startswith('output/'):
+            absolute_path = Path('/app') / img_path
+            return f'![{alt_text}]({absolute_path})'
+        
+        # If it's a relative path starting with ../
+        if img_path.startswith('../'):
+            # Convert to absolute path relative to base_dir
+            absolute_path = (base_dir.parent / img_path[3:]).absolute()
+            return f'![{alt_text}]({absolute_path})'
+        elif img_path.startswith('./'):
+            # Convert to absolute path relative to base_dir
+            absolute_path = (base_dir / img_path[2:]).absolute()
+            return f'![{alt_text}]({absolute_path})'
+        else:
+            # Relative path without ./ - check if it's output/ first
+            if img_path.startswith('output/'):
+                absolute_path = Path('/app') / img_path
+            else:
+                absolute_path = (base_dir / img_path).absolute()
+            return f'![{alt_text}]({absolute_path})'
+    
+    return re.sub(pattern, replace_path, content)
+
+
 async def export_to_pdf(
-    markdown_content: str,
-    output_path: str,
+    markdown_content: Optional[str] = None,
+    markdown_file_path: Optional[str] = None,
+    output_path: str = "",
     title: Optional[str] = None,
     author: Optional[str] = None,
     include_toc: bool = True
 ) -> str:
     """
     Convert Markdown to PDF using Pandoc with Polish language support.
+    Accepts either markdown content string or file path.
     
     Args:
-        markdown_content: Markdown content to convert
+        markdown_content: Markdown content to convert (optional if markdown_file_path is provided)
+        markdown_file_path: Path to markdown file to convert (optional if markdown_content is provided)
         output_path: Output PDF file path
         title: Document title
         author: Document author
@@ -31,8 +82,31 @@ async def export_to_pdf(
         Success message
     """
     try:
+        # Validate input
+        if not markdown_content and not markdown_file_path:
+            return "✗ Error: Either markdown_content or markdown_file_path must be provided"
+        
+        if not output_path:
+            return "✗ Error: output_path is required"
+        
         # Ensure output directory exists
         ensure_output_directory(output_path)
+        
+        # Get markdown content
+        if markdown_file_path:
+            # Read from file
+            file_path = Path(markdown_file_path)
+            if not file_path.exists():
+                return f"✗ Error: Markdown file not found: {markdown_file_path}"
+            
+            markdown_content = read_file(str(file_path))
+            
+            # Fix image paths relative to the markdown file's directory
+            markdown_content = fix_image_paths(markdown_content, file_path.parent)
+        elif markdown_content:
+            # Use provided content - fix paths relative to /app (Docker container base)
+            base_dir = Path("/app")
+            markdown_content = fix_image_paths(markdown_content, base_dir)
         
         # Prepare metadata
         metadata_yaml = "---\n"
@@ -54,18 +128,34 @@ async def export_to_pdf(
         try:
             abs_output = Path(output_path).absolute()
             
+            # Try to detect available PDF engine
+            import shutil
+            pdf_engine = "xelatex"
+            if not shutil.which("xelatex"):
+                if shutil.which("pdflatex"):
+                    pdf_engine = "pdflatex"
+                elif shutil.which("wkhtmltopdf"):
+                    pdf_engine = "wkhtmltopdf"
+                else:
+                    raise Exception("No PDF engine found. Install xelatex, pdflatex, or wkhtmltopdf")
+            
             # Build Pandoc command
             cmd = [
                 "pandoc",
                 tmp_path,
                 "-o", str(abs_output),
-                "--pdf-engine=xelatex",
-                "-V", "mainfont=DejaVu Sans",
-                "-V", "monofont=DejaVu Sans Mono",
-                "-V", "geometry:margin=2cm",
-                "-V", "papersize=a4",
-                "-V", "fontsize=11pt",
+                f"--pdf-engine={pdf_engine}",
             ]
+            
+            # Add LaTeX-specific options only for LaTeX engines
+            if pdf_engine in ["xelatex", "pdflatex"]:
+                cmd.extend([
+                    "-V", "mainfont=DejaVu Sans",
+                    "-V", "monofont=DejaVu Sans Mono",
+                    "-V", "geometry:margin=2cm",
+                    "-V", "papersize=a4",
+                    "-V", "fontsize=11pt",
+                ])
             
             if include_toc:
                 cmd.extend(["--toc", "--toc-depth=3"])
