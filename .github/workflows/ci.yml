@@ -74,6 +74,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
 
       - name: Install dependencies
         run: |
@@ -102,13 +111,29 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
 
       - name: Create output directory
         run: mkdir -p output
 
+      - name: Build Docker image with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: mcp-documentation-server:latest
+          cache-from: type=gha,scope=mcp-doc-server
+          cache-to: type=gha,mode=max,scope=mcp-doc-server
+
       - name: Start Docker Compose services
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 0
         run: |
-          docker compose up -d --build
+          docker compose up -d
 
       - name: Wait for PlantUML server to be healthy
         run: |
@@ -152,6 +177,20 @@ jobs:
             docker compose logs mcp-server
             exit 1
           fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-3.12-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-3.12-
 
       - name: Install Python dependencies for tests
         run: |
