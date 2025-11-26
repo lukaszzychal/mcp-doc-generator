@@ -46,6 +46,16 @@ git checkout v0.1.2
 
 > **Note:** The `main` branch contains the latest development version. For production, use a tagged release.
 
+### Alternative: Distroless Image (Smaller & More Secure)
+
+For a smaller, more secure image (~300-500MB smaller):
+
+```bash
+docker compose -f docker-compose.distroless.yml up -d
+```
+
+See [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) for details.
+
 ## 📚 Documentation
 
 - **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Complete usage guide (locally and with Cursor)
@@ -173,6 +183,16 @@ git checkout v0.1.2
 - [v0.1.0](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.0) - Wersja początkowa
 
 > **Uwaga:** Branch `main` zawiera najnowszą wersję deweloperską. Do produkcji używaj tagowanej wersji.
+
+### Alternatywa: Obraz Distroless (Mniejszy i Bezpieczniejszy)
+
+Dla mniejszego, bardziej bezpiecznego obrazu (~300-500MB mniej):
+
+```bash
+docker compose -f docker-compose.distroless.yml up -d
+```
+
+Zobacz [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) dla szczegółów.
 
 ## 📚 Dokumentacja
 

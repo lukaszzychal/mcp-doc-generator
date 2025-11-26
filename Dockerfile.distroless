@@ -1,0 +1,83 @@
+# Multi-stage build with Distroless for minimal runtime image
+# This version creates a smaller, more secure image (~300-500MB smaller)
+# Usage: docker build -f Dockerfile.distroless -t mcp-server:distroless .
+
+# Build stage - install all dependencies
+FROM python:3.12-slim AS builder
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pandoc \
+    texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-plain-generic \
+    fonts-dejavu \
+    graphviz \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install mermaid-cli with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g @mermaid-js/mermaid-cli
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies with cache mount
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --user -r requirements.txt
+
+# Runtime stage - Distroless Python image
+FROM gcr.io/distroless/python3-debian12:nonroot
+
+# Copy Python packages from builder
+COPY --from=builder --chown=nonroot:nonroot /root/.local /usr/local
+
+# Copy system binaries (pandoc, graphviz tools, nodejs, npm)
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/pandoc /usr/bin/pandoc
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/dot /usr/bin/dot
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/neato /usr/bin/neato
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/fdp /usr/bin/fdp
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/circo /usr/bin/circo
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/twopi /usr/bin/twopi
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/node /usr/bin/node
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/npm /usr/bin/npm
+
+# Copy TeXLive binaries (xelatex, pdflatex, and related tools)
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/xelatex /usr/bin/xelatex
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/pdflatex /usr/bin/pdflatex
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/latex /usr/bin/latex
+COPY --from=builder --chown=nonroot:nonroot /usr/bin/pdftex /usr/bin/pdftex
+
+# Copy Node.js modules (mermaid-cli)
+COPY --from=builder --chown=nonroot:nonroot /usr/lib/node_modules /usr/lib/node_modules
+
+# Copy TeXLive distribution (needed for PDF generation)
+COPY --from=builder --chown=nonroot:nonroot /usr/share/texlive /usr/share/texlive
+
+# Copy fonts (needed for PDF export with proper fonts)
+COPY --from=builder --chown=nonroot:nonroot /usr/share/fonts /usr/share/fonts
+
+# Copy shared libraries needed by binaries
+# Find and copy all required .so files
+COPY --from=builder --chown=nonroot:nonroot /lib/x86_64-linux-gnu /lib/x86_64-linux-gnu
+COPY --from=builder --chown=nonroot:nonroot /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+
+# Copy application code
+WORKDIR /app
+COPY --chown=nonroot:nonroot src/ ./src/
+
+# Note: Output directory is mounted as volume in docker-compose,
+# so we don't need to create it in the image
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PATH=/usr/local/bin:/usr/bin:$PATH
+
+# Note: Distroless images don't have shell, so CMD must be in exec form
+CMD ["src/server.py"]
+
