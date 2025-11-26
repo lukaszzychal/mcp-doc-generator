@@ -2,14 +2,14 @@ name: Docker Build and Cache
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'Dockerfile'
       - 'docker-compose.yml'
       - 'requirements.txt'
       - 'src/**'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'Dockerfile'
       - 'docker-compose.yml'
