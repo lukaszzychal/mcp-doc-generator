@@ -128,6 +128,13 @@ jobs:
           tags: mcp-documentation-server:latest
           cache-from: type=gha,scope=mcp-doc-server
           cache-to: type=gha,mode=max,scope=mcp-doc-server
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+        # Note: Docker BuildKit automatically rebuilds only changed layers
+        # - If Dockerfile changes -> rebuilds from changed instruction
+        # - If requirements.txt changes -> rebuilds pip install layer
+        # - If src/ changes -> rebuilds COPY layer
+        # Cache is used when files haven't changed
 
       - name: Start Docker Compose services
         env:
