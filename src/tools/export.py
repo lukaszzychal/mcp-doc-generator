@@ -54,18 +54,34 @@ async def export_to_pdf(
         try:
             abs_output = Path(output_path).absolute()
             
+            # Try to detect available PDF engine
+            import shutil
+            pdf_engine = "xelatex"
+            if not shutil.which("xelatex"):
+                if shutil.which("pdflatex"):
+                    pdf_engine = "pdflatex"
+                elif shutil.which("wkhtmltopdf"):
+                    pdf_engine = "wkhtmltopdf"
+                else:
+                    raise Exception("No PDF engine found. Install xelatex, pdflatex, or wkhtmltopdf")
+            
             # Build Pandoc command
             cmd = [
                 "pandoc",
                 tmp_path,
                 "-o", str(abs_output),
-                "--pdf-engine=xelatex",
-                "-V", "mainfont=DejaVu Sans",
-                "-V", "monofont=DejaVu Sans Mono",
-                "-V", "geometry:margin=2cm",
-                "-V", "papersize=a4",
-                "-V", "fontsize=11pt",
+                f"--pdf-engine={pdf_engine}",
             ]
+            
+            # Add LaTeX-specific options only for LaTeX engines
+            if pdf_engine in ["xelatex", "pdflatex"]:
+                cmd.extend([
+                    "-V", "mainfont=DejaVu Sans",
+                    "-V", "monofont=DejaVu Sans Mono",
+                    "-V", "geometry:margin=2cm",
+                    "-V", "papersize=a4",
+                    "-V", "fontsize=11pt",
+                ])
             
             if include_toc:
                 cmd.extend(["--toc", "--toc-depth=3"])
