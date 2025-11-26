@@ -158,8 +158,16 @@ fi
 
 echo ""
 echo "7. Budowanie kontenerów Docker..."
-$COMPOSE_CMD build
-print_status $? "Kontenery zbudowane"
+# Use intelligent build script if available, otherwise fallback to regular build
+if [ -f "$(dirname "$0")/docker-build.sh" ]; then
+    echo "Używanie inteligentnego skryptu budowania..."
+    "$(dirname "$0")/docker-build.sh"
+    print_status $? "Kontenery zbudowane (lub pominięte jeśli brak zmian)"
+else
+    # Fallback to regular build
+    $COMPOSE_CMD build
+    print_status $? "Kontenery zbudowane"
+fi
 
 echo ""
 echo "8. Uruchamianie serwisów..."

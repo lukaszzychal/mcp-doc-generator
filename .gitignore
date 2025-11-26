@@ -76,6 +76,8 @@ config.local.*
 
 # Docker
 .dockerignore.local
+# Docker build cache (optional: can be committed for shared cache in team)
+.docker-cache/
 
 # Logs
 *.log

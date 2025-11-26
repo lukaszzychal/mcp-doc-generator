@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 
 # Install system dependencies
+# Combined into single RUN for better layer caching
 RUN apt-get update && apt-get install -y \
     pandoc \
     texlive-xetex \
@@ -9,24 +10,29 @@ RUN apt-get update && apt-get install -y \
     fonts-dejavu \
     graphviz \
     curl \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js for mermaid-cli (using Debian package)
-RUN apt-get update && apt-get install -y nodejs npm \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install mermaid-cli and draw.io dependencies globally
-RUN npm install -g @mermaid-js/mermaid-cli
+# Install mermaid-cli with cache mount for faster rebuilds
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g @mermaid-js/mermaid-cli
 # Note: draw.io export will use online API or Python library as fallback
 
 # Set working directory
 WORKDIR /app
 
 # Copy requirements first for better caching
+# This layer will be cached if requirements.txt doesn't change
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Python dependencies with cache mount
+# Cache mount speeds up pip install on subsequent builds
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
+# This layer changes most frequently, so it's last
 COPY src/ ./src/
 
 # Create output directory

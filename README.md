@@ -25,6 +25,16 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 # 3. Or use in Cursor - open conversation and use MCP tools
 ```
 
+### Alternative: Distroless Image (Smaller & More Secure)
+
+For a smaller, more secure image (~300-500MB smaller):
+
+```bash
+docker compose -f docker-compose.distroless.yml up -d
+```
+
+See [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) for details.
+
 ## 📚 Documentation
 
 - **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Complete usage guide (locally and with Cursor)
@@ -131,6 +141,16 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 
 # 3. Lub użyj w Cursor - otwórz konwersację i użyj narzędzi MCP
 ```
+
+### Alternatywa: Obraz Distroless (Mniejszy i Bezpieczniejszy)
+
+Dla mniejszego, bardziej bezpiecznego obrazu (~300-500MB mniej):
+
+```bash
+docker compose -f docker-compose.distroless.yml up -d
+```
+
+Zobacz [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) dla szczegółów.
 
 ## 📚 Dokumentacja
 
