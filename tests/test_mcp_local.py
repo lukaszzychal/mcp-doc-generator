@@ -35,7 +35,8 @@ class MCPTester:
         self.process = None
         self.request_id = 0
         self.results = []
-        self.request_lock = threading.Lock()
+        self.request_lock = threading.Lock()  # Lock dla request_id i pending_responses
+        self.stdin_lock = threading.Lock()  # Lock tylko dla zapisu do stdin
         self.response_queue = queue.Queue()  # Thread-safe queue
         self.pending_responses = {}  # request_id -> {"event": asyncio.Event, "response": None}
         self.reader_thread = None
@@ -145,21 +146,25 @@ class MCPTester:
     
     async def send_request(self, method: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Wyślij żądanie JSON-RPC do MCP server"""
+        # Tylko lock dla request_id (żeby było unikalne)
         with self.request_lock:
             self.request_id += 1
             request_id = self.request_id
-            request = {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "method": method
-            }
-            if params:
-                request["params"] = params
-                
-            request_json = json.dumps(request) + "\n"
+        
+        # Przygotuj żądanie poza lockiem
+        request = {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "method": method
+        }
+        if params:
+            request["params"] = params
             
-            # Utwórz event do oczekiwania na odpowiedź
-            response_event = asyncio.Event()
+        request_json = json.dumps(request) + "\n"
+        
+        # Utwórz event do oczekiwania na odpowiedź
+        response_event = asyncio.Event()
+        with self.request_lock:
             self.pending_responses[request_id] = {
                 "event": response_event,
                 "response": None
@@ -167,10 +172,12 @@ class MCPTester:
         
         try:
             # Wyślij żądanie (synchronicznie, bo to subprocess.Popen)
-            if self.process.poll() is not None:
-                return {"error": {"message": "Process has terminated"}}
-            self.process.stdin.write(request_json)
-            self.process.stdin.flush()
+            # Lock tylko dla zapisu do stdin (żeby nie mieszać danych)
+            with self.stdin_lock:
+                if self.process.poll() is not None:
+                    return {"error": {"message": "Process has terminated"}}
+                self.process.stdin.write(request_json)
+                self.process.stdin.flush()
             
             # Czekaj na odpowiedź z timeoutem
             try:
