@@ -38,6 +38,11 @@ def fix_image_paths(content: str, base_dir: Path) -> str:
             absolute_path = Path('/app') / img_path
             return f'![{alt_text}]({absolute_path})'
         
+        # Special handling for ../output/ paths - they should also point to /app/output
+        if img_path.startswith('../output/'):
+            absolute_path = Path('/app') / 'output' / img_path[10:]  # Remove '../output/'
+            return f'![{alt_text}]({absolute_path})'
+        
         # If it's a relative path starting with ../
         if img_path.startswith('../'):
             # Convert to absolute path relative to base_dir
@@ -48,11 +53,8 @@ def fix_image_paths(content: str, base_dir: Path) -> str:
             absolute_path = (base_dir / img_path[2:]).absolute()
             return f'![{alt_text}]({absolute_path})'
         else:
-            # Relative path without ./ - check if it's output/ first
-            if img_path.startswith('output/'):
-                absolute_path = Path('/app') / img_path
-            else:
-                absolute_path = (base_dir / img_path).absolute()
+            # Relative path without ./ or ../ - resolve relative to base_dir
+            absolute_path = (base_dir / img_path).absolute()
             return f'![{alt_text}]({absolute_path})'
     
     return re.sub(pattern, replace_path, content)
@@ -93,7 +95,16 @@ async def export_to_pdf(
         ensure_output_directory(output_path)
         
         # Get markdown content
-        if markdown_file_path:
+        # If both are provided, prioritize markdown_content (user explicitly provided it)
+        warning = ""
+        if markdown_content and markdown_file_path:
+            warning = f"⚠ Warning: Both markdown_content and markdown_file_path provided. Using markdown_content and ignoring markdown_file_path.\n"
+        
+        if markdown_content:
+            # Use provided content - fix paths relative to /app (Docker container base)
+            base_dir = Path("/app")
+            markdown_content = fix_image_paths(markdown_content, base_dir)
+        elif markdown_file_path:
             # Read from file
             file_path = Path(markdown_file_path)
             if not file_path.exists():
@@ -103,10 +114,6 @@ async def export_to_pdf(
             
             # Fix image paths relative to the markdown file's directory
             markdown_content = fix_image_paths(markdown_content, file_path.parent)
-        elif markdown_content:
-            # Use provided content - fix paths relative to /app (Docker container base)
-            base_dir = Path("/app")
-            markdown_content = fix_image_paths(markdown_content, base_dir)
         
         # Prepare metadata
         metadata_yaml = "---\n"
@@ -173,7 +180,10 @@ async def export_to_pdf(
                 error_msg = stderr.decode('utf-8') if stderr else stdout.decode('utf-8')
                 raise Exception(f"Pandoc error: {error_msg}")
             
-            return f"✓ PDF document generated successfully: {abs_output}"
+            success_msg = f"✓ PDF document generated successfully: {abs_output}"
+            if warning:
+                success_msg = warning + success_msg
+            return success_msg
         
         finally:
             # Clean up temporary file
