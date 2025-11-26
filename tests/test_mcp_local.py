@@ -51,13 +51,15 @@ class MCPTester:
         ]
         try:
             # Użyj synchronicznego subprocess (działa lepiej z docker exec)
+            # bufsize=1 = line buffered (ważne dla readline())
             self.process = subprocess.Popen(
                 cmd,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                bufsize=0
+                bufsize=1,  # Line buffered - ważne dla readline()
+                env={**os.environ, "PYTHONUNBUFFERED": "1"}  # Unbuffered Python output
             )
             
             # Sprawdź czy proces się nie zakończył natychmiast
@@ -85,24 +87,42 @@ class MCPTester:
         
     def _read_responses_thread(self):
         """Czytaj odpowiedzi z serwera w tle (w osobnym wątku)"""
+        debug = os.getenv("TEST_DEBUG", "false").lower() == "true"
+        lines_read = 0
         try:
             while not self.shutdown_event.is_set():
                 if self.process.poll() is not None:
                     # Proces się zakończył
+                    if debug:
+                        print(f"{YELLOW}[DEBUG] Process terminated with code: {self.process.returncode}{NC}")
                     break
                     
                 try:
+                    # Użyj readline() z timeoutem przez select (jeśli dostępne)
                     line = self.process.stdout.readline()
                     if not line:
-                        # EOF - proces się zakończył
+                        # EOF - proces się zakończył lub stdin zamknięty
+                        if debug:
+                            print(f"{YELLOW}[DEBUG] EOF received, lines read: {lines_read}{NC}")
                         break
+                    
+                    lines_read += 1
+                    if debug:
+                        print(f"{YELLOW}[DEBUG] Received line {lines_read}: {line[:100]}{NC}")
+                    
                     if line.strip():
                         try:
                             response = json.loads(line.strip())
                             response_id = response.get("id")
+                            
+                            if debug:
+                                print(f"{YELLOW}[DEBUG] Parsed JSON response, ID: {response_id}, pending: {list(self.pending_responses.keys())}{NC}")
+                            
                             if response_id and response_id in self.pending_responses:
                                 # Znaleziono odpowiedź dla oczekującego żądania
                                 self.pending_responses[response_id]["response"] = response
+                                if debug:
+                                    print(f"{GREEN}[DEBUG] Matched response for request {response_id}{NC}")
                                 # Event.set() jest thread-safe, można wywołać bezpośrednio
                                 # Ale użyj call_soon_threadsafe dla bezpieczeństwa
                                 if self.loop and self.loop.is_running():
@@ -117,21 +137,35 @@ class MCPTester:
                                         pass
                             else:
                                 # Dodaj do kolejki ogólnej (thread-safe queue)
+                                if debug:
+                                    print(f"{YELLOW}[DEBUG] Response ID {response_id} not in pending, adding to queue{NC}")
                                 self.response_queue.put(response)
-                        except json.JSONDecodeError:
+                        except json.JSONDecodeError as e:
                             # Ignoruj nieprawidłowe JSON
+                            if debug:
+                                print(f"{RED}[DEBUG] JSON decode error: {e}, line: {line[:100]}{NC}")
                             continue
                 except Exception as e:
                     error_str = str(e).lower()
                     if any(err in error_str for err in ["broken pipe", "connection reset", "eof"]):
+                        if debug:
+                            print(f"{YELLOW}[DEBUG] Connection error (expected): {e}{NC}")
                         break
                     print(f"{RED}Error reading responses: {e}{NC}")
+                    if debug:
+                        import traceback
+                        traceback.print_exc()
                     break
         except Exception as e:
             error_str = str(e).lower()
             if not any(err in error_str for err in ["broken pipe", "connection reset", "eof"]):
                 print(f"{RED}Error in response reader: {e}{NC}")
+                if debug:
+                    import traceback
+                    traceback.print_exc()
         finally:
+            if debug:
+                print(f"{YELLOW}[DEBUG] Reader thread ending, lines read: {lines_read}, pending: {len(self.pending_responses)}{NC}")
             # Oznacz wszystkie oczekujące żądania jako timeout
             for pending in self.pending_responses.values():
                 if pending["response"] is None:
@@ -170,22 +204,43 @@ class MCPTester:
                 "response": None
             }
         
+        debug = os.getenv("TEST_DEBUG", "false").lower() == "true"
+        
         try:
             # Wyślij żądanie (synchronicznie, bo to subprocess.Popen)
             # Lock tylko dla zapisu do stdin (żeby nie mieszać danych)
             with self.stdin_lock:
                 if self.process.poll() is not None:
+                    if debug:
+                        print(f"{RED}[DEBUG] Process terminated before sending request {request_id}{NC}")
                     return {"error": {"message": "Process has terminated"}}
+                
+                if debug:
+                    print(f"{YELLOW}[DEBUG] Sending request {request_id}: {method}{NC}")
+                    print(f"{YELLOW}[DEBUG] Request JSON: {request_json[:200]}{NC}")
+                
                 self.process.stdin.write(request_json)
                 self.process.stdin.flush()
+                
+                if debug:
+                    print(f"{GREEN}[DEBUG] Request {request_id} sent, waiting for response...{NC}")
             
             # Czekaj na odpowiedź z timeoutem
             try:
+                if debug:
+                    print(f"{YELLOW}[DEBUG] Waiting for response to request {request_id} (timeout: 60s){NC}")
+                
                 await asyncio.wait_for(response_event.wait(), timeout=60.0)
                 response = self.pending_responses[request_id]["response"]
+                
+                if debug:
+                    print(f"{GREEN}[DEBUG] Got response for request {request_id}: {str(response)[:200]}{NC}")
+                
                 if response:
                     return response
                 else:
+                    if debug:
+                        print(f"{YELLOW}[DEBUG] Response is None, checking queue...{NC}")
                     # Sprawdź w kolejce jako fallback (z timeoutem)
                     # Użyj thread-safe queue.get z timeoutem
                     try:
@@ -193,14 +248,24 @@ class MCPTester:
                             try:
                                 queued_response = self.response_queue.get(timeout=0.1)
                                 if queued_response.get("id") == request_id:
+                                    if debug:
+                                        print(f"{GREEN}[DEBUG] Found response in queue for request {request_id}{NC}")
                                     return queued_response
                                 # Jeśli to nie nasza odpowiedź, zwróć z powrotem
                                 self.response_queue.put(queued_response)
                             except queue.Empty:
+                                if debug:
+                                    print(f"{RED}[DEBUG] No response in queue for request {request_id}{NC}")
                                 return {"error": {"message": "No response received"}}
-                    except Exception:
+                    except Exception as e:
+                        if debug:
+                            print(f"{RED}[DEBUG] Exception checking queue: {e}{NC}")
                         return {"error": {"message": "No response received"}}
             except asyncio.TimeoutError:
+                if debug:
+                    print(f"{RED}[DEBUG] Timeout waiting for response to request {request_id}{NC}")
+                    print(f"{RED}[DEBUG] Pending responses: {list(self.pending_responses.keys())}{NC}")
+                    print(f"{RED}[DEBUG] Queue size: {self.response_queue.qsize()}{NC}")
                 return {"error": {"message": "Request timeout"}}
         finally:
             # Usuń z pending_responses

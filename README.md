@@ -25,6 +25,27 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 # 3. Or use in Cursor - open conversation and use MCP tools
 ```
 
+## 📦 Stable Release
+
+**Latest stable version:** [v0.1.2](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.2)
+
+For production use, we recommend using a tagged release:
+
+```bash
+# Clone specific version
+git clone --branch v0.1.2 https://github.com/lukaszzychal/mcp-doc-generator.git
+
+# Or checkout tag in existing repo
+git checkout v0.1.2
+```
+
+**Available releases:**
+- [v0.1.2](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.2) - CI/CD optimizations, Docker caching improvements
+- [v0.1.1](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.1) - Previous stable release
+- [v0.1.0](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.0) - Initial release
+
+> **Note:** The `main` branch contains the latest development version. For production, use a tagged release.
+
 ### Alternative: Distroless Image (Smaller & More Secure)
 
 For a smaller, more secure image (~300-500MB smaller):
@@ -141,6 +162,27 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 
 # 3. Lub użyj w Cursor - otwórz konwersację i użyj narzędzi MCP
 ```
+
+## 📦 Stabilna Wersja
+
+**Najnowsza stabilna wersja:** [v0.1.2](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.2)
+
+Do użycia produkcyjnego zalecamy użycie tagowanej wersji:
+
+```bash
+# Sklonuj konkretną wersję
+git clone --branch v0.1.2 https://github.com/lukaszzychal/mcp-doc-generator.git
+
+# Lub przełącz się na tag w istniejącym repo
+git checkout v0.1.2
+```
+
+**Dostępne wydania:**
+- [v0.1.2](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.2) - Optymalizacje CI/CD, ulepszenia cache Docker
+- [v0.1.1](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.1) - Poprzednia stabilna wersja
+- [v0.1.0](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.0) - Wersja początkowa
+
+> **Uwaga:** Branch `main` zawiera najnowszą wersję deweloperską. Do produkcji używaj tagowanej wersji.
 
 ### Alternatywa: Obraz Distroless (Mniejszy i Bezpieczniejszy)
 
