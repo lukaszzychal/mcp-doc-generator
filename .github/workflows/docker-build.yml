@@ -84,7 +84,9 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        platforms: linux/amd64,linux/arm64
+        # Dla PR: tylko amd64 (szybszy build)
+        # Dla push: multi-platform (amd64 + arm64 dla production)
+        platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
     
     - name: Image digest
       if: github.event_name != 'pull_request'
