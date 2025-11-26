@@ -1,0 +1,77 @@
+---
+alwaysApply: true
+---
+
+# Commit Message Rules
+
+## Format: Conventional Commits
+
+**ALWAYS** use this format for commit messages:
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+## Types
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code refactoring
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `chore`: Build process or auxiliary tools
+- `ci`: CI configuration changes
+
+## Scope (optional)
+
+- `server`: MCP server code
+- `client`: MCP client code
+- `tools`: Diagram generation tools
+- `docs`: Documentation
+- `examples`: Example files
+- `scripts`: Utility scripts
+
+## Subject Rules
+
+- **Language: English only** - No Polish characters allowed
+- **Imperative present tense**: "change" not "changed" nor "changes"
+- **Lowercase first letter**: "add" not "Add"
+- **No dot at end**: "add feature" not "add feature."
+- **Max 72 characters**
+
+## Examples
+
+✅ **Good:**
+- `feat(server): add C4 context diagram generation`
+- `fix(tools): correct PlantUML container parsing`
+- `docs(readme): update installation instructions`
+- `chore(git): add commit message rules and validation hook`
+
+❌ **Bad:**
+- `Naprawiono błąd` (Polish, no format)
+- `Add feature` (no type prefix)
+- `Added C4 diagram` (past tense, no type)
+- `feat(server): Add comprehensive C4 context diagram generation with full support` (too long, capitalized)
+
+## When Creating Commits
+
+1. **Always** generate commit message in English
+2. **Always** use Conventional Commits format
+3. **Always** keep subject under 72 characters
+4. **Always** use imperative present tense
+5. **Never** use Polish in commit messages
+
+The git hook (`.githooks/commit-msg`) will validate these rules automatically.
+
+## Integration with Git Hooks
+
+This Cursor rule works together with the git hook (`.githooks/commit-msg`):
+- **Cursor Rules**: Help AI generate correct commit messages
+- **Git Hooks**: Validate and block incorrect commit messages
+
+Both are required for complete commit message enforcement.
