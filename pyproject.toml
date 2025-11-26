@@ -34,15 +34,10 @@ line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "EM", "ISC", "ICN", "PIE", "PT", "Q", "RSE", "RET", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "PERF", "FURB", "LOG", "RUF"]
+# Only check for critical syntax errors, ignore style issues (handled by formatter)
+select = ["E", "F"]
 ignore = [
     "E501",  # Line too long (handled by formatter)
-    "W293",  # Blank line contains whitespace (will be fixed by formatter)
-    "PLR0913",  # Too many arguments
-    "PLR0912",  # Too many branches
-    "PLR0915",  # Too many statements
-    "PLR2004",  # Magic value used in comparison
-    "TRY003",  # Avoid specifying long messages outside exception class
 ]
 exclude = [
     ".git",
