@@ -26,7 +26,8 @@ services:
       - ./src:/app/src:ro
       - ./output:/app/output
       - ./src/templates:/app/src/templates:ro
-      - ./docs:/app/docs:ro
+      # Note: To access additional directories (e.g., docs), mount them explicitly:
+      # - ./docs:/app/docs:ro
     environment:
       - PLANTUML_SERVER=http://plantuml:8080
       - PYTHONPATH=/app

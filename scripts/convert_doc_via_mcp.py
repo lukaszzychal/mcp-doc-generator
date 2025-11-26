@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-Script to convert markdown document to PDF using MCP server.
-Uses the export_to_pdf tool through MCP protocol.
+External client script to convert markdown document to PDF using MCP server.
+
+NOTE: This is an external helper script. The actual PDF conversion functionality
+is part of the MCP server (export_to_pdf tool). This script uses MCP client library
+to demonstrate programmatic access.
+
+For production use, call export_to_pdf directly through MCP protocol (e.g., via Cursor).
 """
 
 import asyncio

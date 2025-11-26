@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """
-Script to convert markdown document to PDF using MCP server via JSON-RPC.
+External client script to convert markdown document to PDF using MCP server.
+
+NOTE: This is an external helper script. The actual PDF conversion functionality
+is part of the MCP server (export_to_pdf tool). This script is just a test client
+that demonstrates how to call the MCP server programmatically.
+
+For production use, call export_to_pdf directly through MCP protocol (e.g., via Cursor).
 """
 
 import json
@@ -22,18 +28,42 @@ def send_mcp_request(method: str, params: dict = None, request_id: int = 1):
     return json.dumps(request) + "\n"
 
 
-def convert_doc_to_pdf():
-    """Convert document to PDF using MCP server."""
-    doc_path = Path(__file__).parent.parent / "docs" / "JAK_DZIALA_SERWER_MCP.md"
-    output_path = "output/JAK_DZIALA_SERWER_MCP.pdf"
+def convert_doc_to_pdf(doc_path: str = None, output_path: str = None):
+    """
+    Convert document to PDF using MCP server.
     
-    # Convert paths to container paths
-    doc_path_container = f"/app/{doc_path.relative_to(Path(__file__).parent.parent)}"
-    output_path_container = f"/app/{output_path}"
+    Args:
+        doc_path: Path to markdown file (default: docs/JAK_DZIALA_SERWER_MCP.md)
+        output_path: Output PDF path (default: output/JAK_DZIALA_SERWER_MCP.pdf)
+    """
+    if doc_path is None:
+        doc_path = Path(__file__).parent.parent / "docs" / "JAK_DZIALA_SERWER_MCP.md"
+    else:
+        doc_path = Path(doc_path)
+    
+    if output_path is None:
+        output_path = "output/JAK_DZIALA_SERWER_MCP.pdf"
+    
+    # Use absolute path - user must mount the directory if needed
+    # For files in project root, use /app/ prefix
+    # For external files, user should mount them or use absolute host path
+    if doc_path.is_absolute():
+        # Absolute path - assume it's accessible in container or user will mount it
+        doc_path_container = str(doc_path)
+    else:
+        # Relative path - convert to container path
+        # Note: User must mount the directory containing the file
+        doc_path_container = f"/app/{doc_path.relative_to(Path(__file__).parent.parent)}"
+    
+    output_path_container = f"/app/{output_path}" if not Path(output_path).is_absolute() else output_path
     
     print(f"Converting document via MCP server...")
     print(f"  Source: {doc_path}")
     print(f"  Output: {output_path}")
+    print(f"  Container source: {doc_path_container}")
+    print(f"  Container output: {output_path_container}")
+    print(f"\n  NOTE: Make sure the source directory is mounted in docker-compose.yml")
+    print(f"        if using files outside /app/src or /app/output")
     
     # Prepare commands
     docker_cmd = [
@@ -112,5 +142,11 @@ def convert_doc_to_pdf():
 
 
 if __name__ == "__main__":
-    convert_doc_to_pdf()
+    import argparse
+    parser = argparse.ArgumentParser(description="Convert markdown to PDF via MCP server")
+    parser.add_argument("--input", "-i", help="Input markdown file path")
+    parser.add_argument("--output", "-o", help="Output PDF file path")
+    args = parser.parse_args()
+    
+    convert_doc_to_pdf(args.input, args.output)
 
