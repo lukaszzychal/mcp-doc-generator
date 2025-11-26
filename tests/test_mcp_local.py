@@ -44,44 +44,87 @@ class MCPTester:
             "docker", "exec", "-i", "mcp-documentation-server",
             "python", "src/server.py"
         ]
-        self.process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            text=True,
-            bufsize=0
-        )
-        
-        # Start background reader task
-        self.reader_task = asyncio.create_task(self._read_responses())
-        
-        # Czekaj na inicjalizację
-        await asyncio.sleep(0.5)
+        try:
+            self.process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                text=True,
+                bufsize=0
+            )
+            
+            # Sprawdź czy proces się nie zakończył natychmiast
+            await asyncio.sleep(0.1)
+            if self.process.returncode is not None:
+                # Spróbuj odczytać stderr
+                stderr_output = ""
+                try:
+                    stderr_data = await asyncio.wait_for(self.process.stderr.read(1024), timeout=0.5)
+                    if stderr_data:
+                        stderr_output = stderr_data
+                except:
+                    pass
+                raise Exception(f"Process exited immediately with code {self.process.returncode}. Stderr: {stderr_output}")
+            
+            # Start background reader task
+            self.reader_task = asyncio.create_task(self._read_responses())
+            
+            # Czekaj na inicjalizację
+            await asyncio.sleep(0.5)
+        except Exception as e:
+            print(f"{RED}Error starting server: {e}{NC}")
+            if self.process:
+                try:
+                    stderr_output = await self.process.stderr.read()
+                    if stderr_output:
+                        print(f"{RED}Stderr: {stderr_output}{NC}")
+                except:
+                    pass
+            raise
         
     async def _read_responses(self):
         """Czytaj odpowiedzi z serwera w tle"""
         try:
             while True:
-                line = await self.process.stdout.readline()
-                if not line:
+                try:
+                    line = await asyncio.wait_for(
+                        self.process.stdout.readline(),
+                        timeout=5.0
+                    )
+                    if not line:
+                        # EOF - proces się zakończył
+                        break
+                    if line.strip():
+                        try:
+                            response = json.loads(line.strip())
+                            response_id = response.get("id")
+                            if response_id and response_id in self.pending_responses:
+                                # Znaleziono odpowiedź dla oczekującego żądania
+                                self.pending_responses[response_id]["response"] = response
+                                self.pending_responses[response_id]["event"].set()
+                            else:
+                                # Dodaj do kolejki ogólnej
+                                await self.response_queue.put(response)
+                        except json.JSONDecodeError:
+                            # Ignoruj nieprawidłowe JSON
+                            continue
+                except asyncio.TimeoutError:
+                    # Sprawdź czy proces nadal działa
+                    if self.process.returncode is not None:
+                        break
+                    # Kontynuuj czytanie
+                    continue
+                except Exception as e:
+                    error_str = str(e).lower()
+                    if any(err in error_str for err in ["broken pipe", "connection reset", "eof"]):
+                        break
+                    print(f"{RED}Error reading responses: {e}{NC}")
                     break
-                if line.strip():
-                    try:
-                        response = json.loads(line.strip())
-                        response_id = response.get("id")
-                        if response_id and response_id in self.pending_responses:
-                            # Znaleziono odpowiedź dla oczekującego żądania
-                            self.pending_responses[response_id]["response"] = response
-                            self.pending_responses[response_id]["event"].set()
-                        else:
-                            # Dodaj do kolejki ogólnej
-                            await self.response_queue.put(response)
-                    except json.JSONDecodeError:
-                        # Może być więcej linii - spróbuj połączyć z następną
-                        continue
         except Exception as e:
-            print(f"{RED}Error reading responses: {e}{NC}")
+            error_str = str(e).lower()
+            if not any(err in error_str for err in ["broken pipe", "connection reset", "eof"]):
+                print(f"{RED}Error in response reader: {e}{NC}")
         finally:
             # Oznacz wszystkie oczekujące żądania jako timeout
             for pending in self.pending_responses.values():
@@ -113,6 +156,8 @@ class MCPTester:
             
             try:
                 # Wyślij żądanie
+                if self.process.returncode is not None:
+                    return {"error": {"message": "Process has terminated"}}
                 self.process.stdin.write(request_json)
                 await self.process.stdin.drain()
                 
@@ -123,12 +168,19 @@ class MCPTester:
                     if response:
                         return response
                     else:
-                        # Sprawdź w kolejce jako fallback
-                        while not self.response_queue.empty():
-                            queued_response = await self.response_queue.get()
-                            if queued_response.get("id") == request_id:
-                                return queued_response
-                        return {"error": {"message": "No response received"}}
+                        # Sprawdź w kolejce jako fallback (z timeoutem)
+                        try:
+                            while True:
+                                queued_response = await asyncio.wait_for(
+                                    self.response_queue.get(),
+                                    timeout=0.1
+                                )
+                                if queued_response.get("id") == request_id:
+                                    return queued_response
+                                # Jeśli to nie nasza odpowiedź, zwróć z powrotem
+                                await self.response_queue.put(queued_response)
+                        except asyncio.TimeoutError:
+                            return {"error": {"message": "No response received"}}
                 except asyncio.TimeoutError:
                     return {"error": {"message": "Request timeout"}}
             finally:
