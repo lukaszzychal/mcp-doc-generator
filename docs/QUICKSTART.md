@@ -1,5 +1,140 @@
 # Quick Start Guide - MCP Documentation Server
 
+**Language / Język:** [English](#english) | [Polski](#polski)
+
+---
+
+<a name="english"></a>
+# English
+
+## 🚀 Quick Start (5 minutes)
+
+### Step 1: Installation
+
+```bash
+# Clone/navigate to project directory
+cd /Users/lukaszzychal/PhpstormProjects/MCPServer
+
+# Run automatic installer
+./install.sh
+```
+
+### Step 2: Verify it works
+
+```bash
+# Run tests
+./test.sh
+```
+
+### Step 3: Configure Claude Desktop
+
+**macOS:**
+```bash
+# Open configuration file
+open ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+**Add configuration:**
+```json
+{
+  "mcpServers": {
+    "documentation": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "mcp-documentation-server",
+        "python",
+        "src/server.py"
+      ]
+    }
+  }
+}
+```
+
+### Step 4: Restart Claude Desktop
+
+Close and restart the Claude Desktop application.
+
+### Step 5: Test!
+
+Open a new conversation in Claude and try:
+
+```
+Generate C4 Context Diagram for e-commerce system with user, 
+main system and payment gateway. Save as output/test-c4.png
+```
+
+## ✅ Verification
+
+After configuration, Claude should have access to the following tools:
+
+1. ✅ `generate_c4_diagram` - C4 Architecture diagrams
+2. ✅ `generate_uml_diagram` - UML diagrams
+3. ✅ `generate_sequence_diagram` - Sequence diagrams
+4. ✅ `generate_flowchart` - Flowcharts
+5. ✅ `generate_mermaid_sequence` - Mermaid sequences
+6. ✅ `generate_gantt` - Gantt charts
+7. ✅ `generate_dependency_graph` - Dependency graphs
+8. ✅ `generate_cloud_diagram` - Cloud architecture
+9. ✅ `export_to_pdf` - PDF export
+10. ✅ `export_to_docx` - Word export
+11. ✅ `create_document_from_template` - Template-based docs
+
+## 🔧 Basic Docker Commands
+
+```bash
+# Start services
+docker compose up -d
+
+# Check status
+docker compose ps
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
+
+# Restart single service
+docker compose restart mcp-server
+```
+
+## 📖 Next Steps
+
+1. Review examples in `examples/example_usage.md`
+2. Check templates in `src/templates/`
+3. Read full documentation in `README.md`
+
+## ❓ Troubleshooting
+
+### PlantUML not working
+```bash
+docker compose restart plantuml
+curl http://localhost:8080/
+```
+
+### MCP server not responding
+```bash
+docker compose logs mcp-server
+docker compose restart mcp-server
+```
+
+### Polish character encoding issues
+Make sure you're using UTF-8:
+```bash
+export LANG=en_US.UTF-8
+```
+
+## 🎉 Done!
+
+Now you can generate professional technical documentation using Claude!
+
+---
+
+<a name="polski"></a>
+# Polski
+
 ## 🚀 Szybki Start (5 minut)
 
 ### Krok 1: Instalacja
