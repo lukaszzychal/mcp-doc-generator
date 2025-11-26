@@ -48,8 +48,10 @@ async def main():
     markdown_content = read_file(str(doc_path))
     
     # Fix image paths to absolute paths
+    # Use doc_path.parent (document's directory) instead of base_dir (project root)
+    # because image paths like ../output/image.png are relative to the document location
     print("Fixing image paths...")
-    markdown_content = fix_image_paths(markdown_content, base_dir)
+    markdown_content = fix_image_paths(markdown_content, doc_path.parent)
     
     print(f"Converting to PDF: {output_path}")
     result = await export_to_pdf(
