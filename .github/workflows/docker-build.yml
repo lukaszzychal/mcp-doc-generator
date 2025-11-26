@@ -45,7 +45,7 @@ jobs:
     
     - name: Extract metadata (for push events)
       if: github.event_name != 'pull_request'
-      id: meta
+      id: meta-push
       uses: docker/metadata-action@v5
       with:
         images: ghcr.io/${{ github.repository }}/mcp-server
@@ -57,10 +57,22 @@ jobs:
     
     - name: Set PR tag
       if: github.event_name == 'pull_request'
-      id: meta
+      id: meta-pr
       run: |
         echo "tags=ghcr.io/${{ github.repository }}/mcp-server:pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
         echo "labels=" >> $GITHUB_OUTPUT
+    
+    - name: Set unified metadata
+      id: meta
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "tags=${{ steps.meta-pr.outputs.tags }}" >> $GITHUB_OUTPUT
+          echo "labels=${{ steps.meta-pr.outputs.labels }}" >> $GITHUB_OUTPUT
+        else
+          echo "tags=${{ steps.meta-push.outputs.tags }}" >> $GITHUB_OUTPUT
+          echo "labels=${{ steps.meta-push.outputs.labels }}" >> $GITHUB_OUTPUT
+          echo "digest=${{ steps.meta-push.outputs.digest }}" >> $GITHUB_OUTPUT
+        fi
     
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -75,5 +87,6 @@ jobs:
         platforms: linux/amd64,linux/arm64
     
     - name: Image digest
+      if: github.event_name != 'pull_request'
       run: echo ${{ steps.meta.outputs.digest }}
 
