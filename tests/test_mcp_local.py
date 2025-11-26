@@ -103,11 +103,11 @@ class MCPTester:
                             if response_id and response_id in self.pending_responses:
                                 # Znaleziono odpowiedź dla oczekującego żądania
                                 self.pending_responses[response_id]["response"] = response
-                                # Użyj asyncio.run_coroutine_threadsafe do ustawienia eventu
+                                # Event.set() jest thread-safe, można wywołać bezpośrednio
+                                # Ale użyj call_soon_threadsafe dla bezpieczeństwa
                                 if self.loop and self.loop.is_running():
-                                    asyncio.run_coroutine_threadsafe(
-                                        self.pending_responses[response_id]["event"].set(),
-                                        self.loop
+                                    self.loop.call_soon_threadsafe(
+                                        self.pending_responses[response_id]["event"].set
                                     )
                                 else:
                                     # Fallback - ustaw bezpośrednio jeśli loop nie działa
@@ -137,7 +137,7 @@ class MCPTester:
                 if pending["response"] is None:
                     pending["response"] = {"error": {"message": "Connection closed"}}
                 if self.loop and self.loop.is_running():
-                    asyncio.run_coroutine_threadsafe(pending["event"].set(), self.loop)
+                    self.loop.call_soon_threadsafe(pending["event"].set)
                 else:
                     try:
                         pending["event"].set()
