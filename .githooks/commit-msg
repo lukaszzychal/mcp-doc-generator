@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# Git hook to validate commit messages according to Conventional Commits
+# Requires: English language, proper format
+#
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Check if commit message is empty
+if [ -z "$commit_msg" ]; then
+    echo "Error: Commit message is empty"
+    exit 1
+fi
+
+# Extract first line (subject)
+subject=$(echo "$commit_msg" | head -n1)
+
+# Check if subject follows Conventional Commits format
+# Format: <type>(<scope>): <subject>
+# Types: feat, fix, docs, style, refactor, perf, test, chore, ci
+if ! echo "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\(.+\))?: .+'; then
+    echo "Error: Commit message must follow Conventional Commits format"
+    echo ""
+    echo "Format: <type>(<scope>): <subject>"
+    echo ""
+    echo "Types: feat, fix, docs, style, refactor, perf, test, chore, ci"
+    echo ""
+    echo "Examples:"
+    echo "  feat(server): add C4 context diagram generation"
+    echo "  fix(tools): correct PlantUML container parsing"
+    echo "  docs(readme): update installation instructions"
+    echo ""
+    echo "Your message: $subject"
+    exit 1
+fi
+
+# Check if subject is too long (max 72 characters)
+if [ ${#subject} -gt 72 ]; then
+    echo "Error: Commit subject is too long (${#subject} characters, max 72)"
+    echo ""
+    echo "Your subject: $subject"
+    exit 1
+fi
+
+# Check if commit message contains only English characters (basic check)
+# Allow: letters, numbers, spaces, punctuation, parentheses, colons
+if echo "$subject" | grep -qE '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]'; then
+    echo "Warning: Commit message contains Polish characters"
+    echo "Please write commit messages in English"
+    echo ""
+    echo "Your message: $subject"
+    echo ""
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
+exit 0
+
