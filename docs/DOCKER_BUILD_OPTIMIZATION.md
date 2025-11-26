@@ -231,8 +231,8 @@ docker compose -f docker-compose.distroless.yml up -d
 ## Przyszłe ulepszenia
 
 - [x] Multi-stage build z Distroless dla mniejszych obrazów
+- [x] Integracja z Docker Registry dla współdzielonego cache w zespole (GHCR w ci.yml)
 - [ ] Automatyczne czyszczenie starego cache
-- [ ] Integracja z Docker Registry dla współdzielonego cache w zespole
 - [ ] Metryki i raportowanie oszczędności czasu/transferu
 - [ ] Wsparcie dla innych systemów CI/CD (GitLab CI, Jenkins)
 - [ ] Automatyczne testowanie obu wariantów (standardowy i Distroless)

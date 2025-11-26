@@ -103,6 +103,13 @@ jobs:
           driver-opts: |
             image=moby/buildkit:latest
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create output directory
         run: mkdir -p output
 
@@ -114,15 +121,20 @@ jobs:
           push: false
           load: true
           tags: mcp-documentation-server:latest
-          cache-from: type=gha,scope=mcp-doc-server
+          # Użyj cache z GHCR (gdzie docker-build.yml pushuje obrazy) + GitHub Actions cache
+          # BuildKit próbuje cache w kolejności: GHCR -> GitHub Actions -> rebuild
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository }}/mcp-server:main
+            type=gha,scope=mcp-doc-server
           cache-to: type=gha,mode=max,scope=mcp-doc-server
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-        # Note: Docker BuildKit automatically rebuilds only changed layers
-        # - If Dockerfile changes -> rebuilds from changed instruction
-        # - If requirements.txt changes -> rebuilds pip install layer
-        # - If src/ changes -> rebuilds COPY layer
-        # Cache is used when files haven't changed
+        # Note: Docker BuildKit używa cache w kolejności:
+        # 1. Najpierw próbuje cache z GHCR (jeśli obraz istnieje z docker-build.yml)
+        # 2. Potem używa cache z GitHub Actions
+        # 3. Jeśli Dockerfile/requirements.txt zmieniły się -> rebuilduje tylko zmienione warstwy
+        # 4. Jeśli src/ zmieniło się -> rebuilduje tylko COPY layer
+        # To daje dodatkowe ~2-4 min oszczędności gdy obraz już istnieje w GHCR
 
       - name: Start Docker Compose services
         env:
