@@ -195,11 +195,16 @@ jobs:
       - name: Run MCP server tests
         id: test
         run: |
+          set -e  # Exit immediately if a command exits with a non-zero status
           python3 tests/test_mcp_local.py > /tmp/test_output.log 2>&1
           TEST_EXIT_CODE=$?
           echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
           cat /tmp/test_output.log
-          exit $TEST_EXIT_CODE
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "❌ Testy nie przeszły (exit code: $TEST_EXIT_CODE)"
+            exit $TEST_EXIT_CODE
+          fi
+          echo "✅ Wszystkie testy przeszły"
 
       - name: Check test output
         if: always()

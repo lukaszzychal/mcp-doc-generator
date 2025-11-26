@@ -849,7 +849,28 @@ This is a test document for DOCX export.
 async def main():
     tester = MCPTester()
     await tester.run_all_tests()
+    
+    # Sprawdź wyniki i zwróć odpowiedni kod wyjścia
+    total = len(tester.results)
+    successful = sum(1 for r in tester.results if r["success"])
+    failed = total - successful
+    
+    if failed > 0:
+        print(f"\n{RED}❌ Testy nie przeszły: {failed}/{total} nieudanych{NC}")
+        sys.exit(1)
+    else:
+        print(f"\n{GREEN}✅ Wszystkie testy przeszły: {successful}/{total}{NC}")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print(f"\n{YELLOW}Testy przerwane przez użytkownika{NC}")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\n{RED}❌ Błąd podczas wykonywania testów: {e}{NC}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
