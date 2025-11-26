@@ -194,6 +194,8 @@ jobs:
 
       - name: Run MCP server tests
         id: test
+        env:
+          TEST_DEBUG: "true"  # Enable debug logging
         run: |
           set -e  # Exit immediately if a command exits with a non-zero status
           python3 tests/test_mcp_local.py > /tmp/test_output.log 2>&1
@@ -202,6 +204,11 @@ jobs:
           cat /tmp/test_output.log
           if [ $TEST_EXIT_CODE -ne 0 ]; then
             echo "❌ Testy nie przeszły (exit code: $TEST_EXIT_CODE)"
+            echo "=== Debug Info ==="
+            echo "Checking if containers are running..."
+            docker ps --filter "name=mcp" || echo "No MCP containers found"
+            echo "Checking MCP server logs..."
+            docker logs mcp-documentation-server --tail 50 || echo "Could not read logs"
             exit $TEST_EXIT_CODE
           fi
           echo "✅ Wszystkie testy przeszły"
