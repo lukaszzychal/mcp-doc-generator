@@ -1,0 +1,36 @@
+# Gitleaks configuration for MCP Documentation Server
+# This configuration helps detect secrets and sensitive information
+
+title = "MCP Documentation Server Secret Detection"
+
+[extend]
+# Use default Gitleaks rules
+useDefault = true
+
+# Paths to exclude from scanning (files/directories that may contain example secrets)
+[[allowlist]]
+description = "Exclude examples directory"
+regex = '''examples/.*'''
+
+[[allowlist]]
+description = "Exclude tests directory"
+regex = '''tests/.*'''
+
+[[allowlist]]
+description = "Exclude documentation files with example secrets"
+regex = '''docs/.*\.md'''
+
+[[allowlist]]
+description = "Exclude markdown files in root"
+regex = '''.*\.md$'''
+
+[[allowlist]]
+description = "Ignore example API keys in docs (sk-... patterns in docs)"
+paths = [
+    "docs/ROADMAP.md",
+    "docs/FUTURE_SMART_ANALYSIS.md",
+    "docs/BRANCH_STRUCTURE_SUMMARY.md",
+]
+
+# Additional allowlist entries can be added here for specific patterns to ignore
+

@@ -1,0 +1,180 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: .gitleaks.toml
+          report-format: json
+          report-path: gitleaks-report.json
+          exit-code: 1
+          no-git: false
+          verbose: true
+          fail: true
+
+      - name: Upload Gitleaks report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          retention-days: 30
+
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run ruff check
+        run: |
+          ruff check src/ tests/ scripts/
+          ruff format --check src/ tests/ scripts/
+
+      - name: Run black check
+        run: |
+          black --check --diff src/ tests/ scripts/
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create output directory
+        run: mkdir -p output
+
+      - name: Start Docker Compose services
+        run: |
+          docker compose up -d --build
+
+      - name: Wait for PlantUML server to be healthy
+        run: |
+          echo "Waiting for PlantUML server to be ready..."
+          timeout=120
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if curl -f -s http://localhost:8080/ > /dev/null 2>&1; then
+              echo "PlantUML server is ready!"
+              break
+            fi
+            echo "Waiting... ($elapsed/$timeout seconds)"
+            sleep 5
+            elapsed=$((elapsed + 5))
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "PlantUML server failed to start within $timeout seconds"
+            docker compose logs plantuml
+            exit 1
+          fi
+
+      - name: Wait for MCP server container to be ready
+        run: |
+          echo "Waiting for MCP server container to be ready..."
+          timeout=60
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if docker ps | grep -q "mcp-documentation-server"; then
+              echo "MCP server container is running!"
+              sleep 2
+              break
+            fi
+            echo "Waiting... ($elapsed/$timeout seconds)"
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "MCP server container failed to start within $timeout seconds"
+            docker compose logs mcp-server
+            exit 1
+          fi
+
+      - name: Install Python dependencies for tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run MCP server tests
+        id: test
+        run: |
+          python3 tests/test_mcp_local.py > /tmp/test_output.log 2>&1
+          TEST_EXIT_CODE=$?
+          echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+          cat /tmp/test_output.log
+          exit $TEST_EXIT_CODE
+
+      - name: Check test output
+        if: always()
+        run: |
+          echo "=== Test Output ==="
+          if [ -f /tmp/test_output.log ]; then
+            cat /tmp/test_output.log
+          fi
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: |
+          echo "=== PlantUML Server Logs ==="
+          docker compose logs plantuml || true
+          echo "=== MCP Server Logs ==="
+          docker compose logs mcp-server || true
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            /tmp/test_output.log
+            /tmp/mcp_test_results.json
+            output/*
+          retention-days: 7
+
+      - name: Cleanup Docker containers
+        if: always()
+        run: |
+          docker compose down -v
+          docker system prune -f
+
