@@ -24,22 +24,16 @@ def generate_all_examples():
         
         # 1. C4 Context Diagram - Professional E-commerce System
         print("1. C4 Context Diagram (Professional E-commerce)...")
-        prompt = """Generate a C4 context diagram for an e-commerce system with the following components:
+        prompt = """Generate a C4 context diagram for an e-commerce system.
 
-External Systems:
-- Users (customers browsing and purchasing)
-- Payment Gateway (Stripe/PayPal)
-- Shipping Service (FedEx/UPS)
+The diagram should show:
+- Person: Customer (users browsing and purchasing)
+- System: E-commerce Platform (the entire system as ONE box - do not break it down into containers)
+- External Systems: Payment Gateway (Stripe/PayPal), Shipping Service (FedEx/UPS)
 
-System Boundary - E-commerce Platform:
-- Web Application (React frontend)
-- Mobile App (iOS/Android)
-- API Gateway (Node.js)
-- Order Service
-- Inventory Service
-- Database (PostgreSQL)
+Show relationships between the Customer and E-commerce Platform, and between E-commerce Platform and external systems with descriptions and protocols (HTTPS, REST API).
 
-Show relationships between all components with descriptions and protocols (HTTPS, REST API).
+IMPORTANT: The E-commerce Platform should be shown as a SINGLE system box, not decomposed into containers. This is a high-level context view.
 
 Save as: output/example_c4_context.png"""
         client.process_prompt(prompt)
