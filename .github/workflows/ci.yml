@@ -3,14 +3,35 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+      - '.github/workflows/**'
+      - '.gitleaks.toml'
   pull_request:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+      - '.github/workflows/**'
+      - '.gitleaks.toml'
   workflow_dispatch:
 
 jobs:
   secret-scan:
     name: Secret Scanning
     runs-on: ubuntu-latest
+    continue-on-error: false
     permissions:
       contents: read
       security-events: write
@@ -21,6 +42,8 @@ jobs:
           fetch-depth: 0
 
       - name: Run Gitleaks
+        id: gitleaks
+        continue-on-error: false
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +95,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    needs: [secret-scan, lint]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
