@@ -32,6 +32,10 @@ ENV/
 *.swo
 *~
 
+# Cursor - but keep rules directory for version control
+.cursor/*
+!.cursor/rules/
+
 # Output files
 output/*
 !output/README.md
@@ -55,6 +59,7 @@ tests/output/
 !PROJECT_STRUCTURE.md
 !README.md
 !TODO.md
+!.cursor/rules/*.md
 
 # Environment variables and secrets
 .env

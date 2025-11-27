@@ -25,6 +25,28 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 # 3. Or use in Cursor - open conversation and use MCP tools
 ```
 
+## 📦 Installation via npx
+
+You can install and run the server directly via `npx` without cloning the repository:
+
+```bash
+# Latest version from main branch
+npx github:lukaszzychal/mcp-doc-generator
+
+# Specific version (tag)
+npx github:lukaszzychal/mcp-doc-generator#v0.1.2
+
+# Specific branch
+npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
+```
+
+**Requirements:**
+- Node.js >= 14.0.0 (for npx)
+- Python >= 3.10 (for the MCP server)
+- Python dependencies installed (see [requirements.txt](requirements.txt))
+
+For detailed instructions, see [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
+
 ## 📦 Stable Release
 
 **Latest stable version:** [v0.1.2](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.2)
@@ -60,6 +82,7 @@ See [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) for detail
 
 - **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Complete usage guide (locally and with Cursor)
 - **[QUICKSTART.md](docs/QUICKSTART.md)** - Quick start in 5 minutes
+- **[NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md)** - Installation via npx
 - **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Project structure
 - **[TEST_RESULTS_MCP.md](docs/TEST_RESULTS_MCP.md)** - Test results for all tools
 - **[DOCKER_CONTAINERS_EXPLAINED.md](docs/DOCKER_CONTAINERS_EXPLAINED.md)** - Docker containers usage explained
@@ -134,8 +157,9 @@ python3 tests/test_mcp_local.py
 
 ## 🔧 Requirements
 
-- Docker and Docker Compose
-- Python 3.10+ (optional, for local usage)
+- Docker and Docker Compose (recommended)
+- Python 3.10+ (required for MCP server)
+- Node.js >= 14.0.0 (optional, for npx installation)
 - Cursor (optional, for integration)
 
 ## 📝 License
@@ -162,6 +186,28 @@ python3 scripts/mcp_client.py -f examples/prompts/prompt.txt
 
 # 3. Lub użyj w Cursor - otwórz konwersację i użyj narzędzi MCP
 ```
+
+## 📦 Instalacja przez npx
+
+Możesz zainstalować i uruchomić serwer bezpośrednio przez `npx` bez klonowania repozytorium:
+
+```bash
+# Najnowsza wersja z gałęzi main
+npx github:lukaszzychal/mcp-doc-generator
+
+# Konkretna wersja (tag)
+npx github:lukaszzychal/mcp-doc-generator#v0.1.2
+
+# Konkretna gałąź
+npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
+```
+
+**Wymagania:**
+- Node.js >= 14.0.0 (dla npx)
+- Python >= 3.10 (dla serwera MCP)
+- Zainstalowane zależności Python (zobacz [requirements.txt](requirements.txt))
+
+Szczegółowe instrukcje: [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
 ## 📦 Stabilna Wersja
 
@@ -198,6 +244,7 @@ Zobacz [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) dla szc
 
 - **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Kompletny przewodnik użycia (lokalnie i z Cursor)
 - **[QUICKSTART.md](docs/QUICKSTART.md)** - Szybki start w 5 minut
+- **[NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md)** - Instalacja przez npx
 - **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Struktura projektu
 - **[TEST_RESULTS_MCP.md](docs/TEST_RESULTS_MCP.md)** - Wyniki testów wszystkich narzędzi
 
@@ -274,8 +321,9 @@ python3 tests/test_mcp_local.py
 
 ## 🔧 Wymagania
 
-- Docker i Docker Compose
-- Python 3.10+ (opcjonalnie, dla lokalnego użycia)
+- Docker i Docker Compose (zalecane)
+- Python 3.10+ (wymagane dla serwera MCP)
+- Node.js >= 14.0.0 (opcjonalnie, dla instalacji przez npx)
 - Cursor (opcjonalnie, dla integracji)
 
 ## 📝 Licencja
