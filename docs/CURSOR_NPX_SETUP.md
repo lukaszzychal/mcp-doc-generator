@@ -9,7 +9,10 @@
 
 ## Overview
 
-This guide explains how to configure Cursor to use the MCP documentation server via npx installation.
+This guide explains how to configure Cursor to use the MCP documentation server. Two installation methods are available:
+
+1. **npx installation** - Easy, no local setup required
+2. **Docker installation** - More reliable, includes all dependencies
 
 ## Configuration
 
@@ -19,9 +22,13 @@ This guide explains how to configure Cursor to use the MCP documentation server 
 2. Go to **Settings** (or press `Cmd+,` on macOS / `Ctrl+,` on Windows/Linux)
 3. Navigate to **Features** → **Model Context Protocol** (or search for "MCP")
 
-### Step 2: Add MCP Server Configuration
+### Step 2: Choose Installation Method
 
-Add the following configuration to your Cursor MCP settings:
+Choose one of the following installation methods:
+
+## Method 1: npx Installation (Recommended for Quick Setup)
+
+### npx Configuration Options
 
 #### Option 1: Latest version from branch
 
@@ -68,7 +75,7 @@ Add the following configuration to your Cursor MCP settings:
 }
 ```
 
-### Step 3: Environment Variables (Optional)
+### npx: Environment Variables (Optional)
 
 If you need to set environment variables (e.g., custom PlantUML server):
 
@@ -152,14 +159,49 @@ Before using npx installation, ensure:
 3. Verify configuration syntax (valid JSON)
 4. Check if npx is working: `npx --version`
 
-## Alternative: Docker Configuration
+## Method 2: Docker Installation (Recommended for Production)
 
-If you prefer Docker (more reliable, includes all dependencies):
+Docker installation is more reliable as it includes all dependencies and provides an isolated environment.
+
+### Prerequisites
+
+1. **Docker and Docker Compose** must be installed
+2. **Start Docker containers:**
+   ```bash
+   docker compose up -d
+   ```
+
+### Docker Configuration
+
+Add the following configuration to your Cursor MCP settings:
 
 ```json
 {
   "mcpServers": {
-    "mcp-doc-generator": {
+    "Documentation": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "mcp-documentation-server",
+        "sh",
+        "-c",
+        "cd /app/src && PYTHONPATH=/app/src python server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/app/src"
+      }
+    }
+  }
+}
+```
+
+**Alternative simpler Docker configuration:**
+
+```json
+{
+  "mcpServers": {
+    "Documentation": {
       "command": "docker",
       "args": [
         "exec",
@@ -173,7 +215,7 @@ If you prefer Docker (more reliable, includes all dependencies):
 }
 ```
 
-See [QUICKSTART.md](QUICKSTART.md) for Docker setup.
+See [QUICKSTART.md](QUICKSTART.md) for detailed Docker setup instructions.
 
 ## See also
 
@@ -188,7 +230,10 @@ See [QUICKSTART.md](QUICKSTART.md) for Docker setup.
 
 ## Przegląd
 
-Ten przewodnik wyjaśnia jak skonfigurować Cursor do używania serwera MCP dokumentacji przez instalację npx.
+Ten przewodnik wyjaśnia jak skonfigurować Cursor do używania serwera MCP dokumentacji. Dostępne są dwie metody instalacji:
+
+1. **Instalacja npx** - Łatwa, bez lokalnej konfiguracji
+2. **Instalacja Docker** - Bardziej niezawodna, zawiera wszystkie zależności
 
 ## Konfiguracja
 
@@ -198,9 +243,13 @@ Ten przewodnik wyjaśnia jak skonfigurować Cursor do używania serwera MCP doku
 2. Przejdź do **Settings** (lub naciśnij `Cmd+,` na macOS / `Ctrl+,` na Windows/Linux)
 3. Przejdź do **Features** → **Model Context Protocol** (lub wyszukaj "MCP")
 
-### Krok 2: Dodaj konfigurację serwera MCP
+### Krok 2: Wybierz metodę instalacji
 
-Dodaj następującą konfigurację do ustawień MCP w Cursor:
+Wybierz jedną z następujących metod instalacji:
+
+## Metoda 1: Instalacja npx (Zalecane dla szybkiej konfiguracji)
+
+### Opcje konfiguracji npx
 
 #### Opcja 1: Najnowsza wersja z gałęzi
 
@@ -247,7 +296,7 @@ Dodaj następującą konfigurację do ustawień MCP w Cursor:
 }
 ```
 
-### Krok 3: Zmienne środowiskowe (Opcjonalne)
+### npx: Zmienne środowiskowe (Opcjonalne)
 
 Jeśli potrzebujesz ustawić zmienne środowiskowe (np. niestandardowy serwer PlantUML):
 
@@ -331,14 +380,49 @@ Przed użyciem instalacji npx, upewnij się że:
 3. Zweryfikuj składnię konfiguracji (poprawny JSON)
 4. Sprawdź czy npx działa: `npx --version`
 
-## Alternatywa: Konfiguracja Docker
+## Metoda 2: Instalacja Docker (Zalecane dla produkcji)
 
-Jeśli wolisz Docker (bardziej niezawodne, zawiera wszystkie zależności):
+Instalacja Docker jest bardziej niezawodna, ponieważ zawiera wszystkie zależności i zapewnia izolowane środowisko.
+
+### Wymagania wstępne
+
+1. **Docker i Docker Compose** muszą być zainstalowane
+2. **Uruchom kontenery Docker:**
+   ```bash
+   docker compose up -d
+   ```
+
+### Konfiguracja Docker
+
+Dodaj następującą konfigurację do ustawień MCP w Cursor:
 
 ```json
 {
   "mcpServers": {
-    "mcp-doc-generator": {
+    "Documentation": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "mcp-documentation-server",
+        "sh",
+        "-c",
+        "cd /app/src && PYTHONPATH=/app/src python server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/app/src"
+      }
+    }
+  }
+}
+```
+
+**Alternatywna prostsza konfiguracja Docker:**
+
+```json
+{
+  "mcpServers": {
+    "Documentation": {
       "command": "docker",
       "args": [
         "exec",
@@ -352,7 +436,7 @@ Jeśli wolisz Docker (bardziej niezawodne, zawiera wszystkie zależności):
 }
 ```
 
-Zobacz [QUICKSTART.md](QUICKSTART.md) dla konfiguracji Docker.
+Zobacz [QUICKSTART.md](QUICKSTART.md) dla szczegółowych instrukcji konfiguracji Docker.
 
 ## Zobacz także
 
