@@ -1,0 +1,126 @@
+---
+description: Always check if documentation needs updates or new documentation should be added when making code changes
+globs:
+  - "**/*.py"
+  - "**/*.js"
+  - "**/*.ts"
+  - "**/*.json"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/Dockerfile*"
+  - "**/docker-compose*.yml"
+alwaysApply: true
+---
+
+# Documentation Maintenance
+
+## Always Check Documentation
+
+When making code changes, new features, or modifications, **always check if documentation needs to be updated or if new documentation should be added**.
+
+## When to Update Documentation
+
+### 1. New Features or Functionality
+- Add new tools or functions → Update `README.md` and relevant docs
+- New configuration options → Update `QUICKSTART.md` or `USAGE_GUIDE.md`
+- New installation methods → Update installation guides
+
+### 2. Code Changes
+- API changes → Update API documentation
+- Configuration changes → Update configuration guides
+- Breaking changes → Update migration guides or changelog
+
+### 3. Project Structure Changes
+- New directories → Update `PROJECT_STRUCTURE.md`
+- New scripts → Document in relevant guides
+- New dependencies → Update `requirements.txt` and installation docs
+
+### 4. Workflow Changes
+- New build process → Update build documentation
+- New deployment process → Update deployment guides
+- CI/CD changes → Update CI/CD documentation
+
+## Documentation Checklist
+
+Before completing any code changes, verify:
+
+- [ ] **README.md** - Is the main README up to date?
+- [ ] **docs/** - Are relevant documentation files updated?
+- [ ] **Examples** - Do examples still work and reflect current state?
+- [ ] **Quick Start** - Can new users still follow quick start guide?
+- [ ] **API/Schema** - Are any API changes documented?
+- [ ] **Configuration** - Are configuration options documented?
+
+## New Documentation Needed
+
+Consider creating new documentation when:
+
+1. **New major feature** → Create dedicated guide in `docs/`
+2. **Complex workflow** → Document step-by-step process
+3. **Common issues** → Add troubleshooting section
+4. **Integration guides** → Document new integrations
+5. **Architecture changes** → Update architecture documentation
+
+## Documentation Update Process
+
+1. **Identify affected docs** - List all documentation that might need updates
+2. **Review current state** - Check if existing docs are accurate
+3. **Update or create** - Modify existing docs or create new ones
+4. **Maintain bilingual format** - Ensure both English and Polish versions are updated
+5. **Verify links** - Check that all internal links still work
+6. **Test examples** - Ensure code examples in docs still work
+
+## Examples
+
+### Example 1: Adding a new tool
+```python
+# New tool added to server.py
+@app.call_tool()
+async def call_tool(name: str, arguments: Any):
+    if name == "new_tool":  # NEW
+        result = await new_module.new_function(...)  # NEW
+```
+
+**Documentation updates needed:**
+- Add to `README.md` tools list
+- Add to `USAGE_GUIDE.md` with examples
+- Update `TEST_RESULTS_MCP.md` if applicable
+
+### Example 2: Configuration change
+```yaml
+# docker-compose.yml
+services:
+  mcp-server:
+    environment:
+      NEW_VAR: "value"  # NEW
+```
+
+**Documentation updates needed:**
+- Update `DOCKER_CONTAINERS_EXPLAINED.md`
+- Update `QUICKSTART.md` if it affects setup
+- Update environment variables section
+
+### Example 3: New installation method
+```json
+// package.json - new installation method
+{
+  "bin": {
+    "new-installer": "./bin/new-installer.js"  // NEW
+  }
+}
+```
+
+**Documentation updates needed:**
+- Create new installation guide or update existing
+- Update `README.md` with new method
+- Add to `QUICKSTART.md`
+
+## Reminder
+
+**Always ask yourself:**
+- "Does this change affect how users interact with the project?"
+- "Would a new user understand this from the documentation?"
+- "Are there examples that need updating?"
+- "Is the documentation still accurate after this change?"
+
+If the answer to any is "yes" or "maybe", update the documentation.

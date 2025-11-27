@@ -1,3 +1,12 @@
+---
+description: Bilingual documentation standards (EN/PL) for all documentation files
+globs:
+  - "**/*.md"
+  - "README.md"
+  - "docs/**/*.md"
+alwaysApply: true
+---
+
 # Documentation Standards
 
 ## Bilingual Documentation (EN/PL)
@@ -72,4 +81,3 @@ All documentation files must be bilingual (English/Polish) following this struct
 
 - Use English for commit messages
 - Polish is acceptable for minor clarifications in commit body
-

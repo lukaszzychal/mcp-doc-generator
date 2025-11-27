@@ -33,7 +33,7 @@ MCP is a communication protocol between AI (e.g., Cursor) and external tools. Th
 
 The system consists of **2 Docker containers**:
 
-![Docker Architecture Diagram](../output/docs_architecture_diagram.png)
+![Docker Architecture Diagram](images/docs_architecture_diagram.png)
 
 #### Container 1: `plantuml`
 - **Image**: `plantuml/plantuml-server:jetty`
@@ -206,7 +206,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
 ### Scenario: Generating C4 Context Diagram
 
-![Data Flow Sequence Diagram](../output/docs_data_flow_diagram.png)
+![Data Flow Sequence Diagram](images/docs_data_flow_diagram.png)
 
 ### Detailed Flow for `generate_c4_diagram`:
 
@@ -434,7 +434,7 @@ def write_binary_file(file_path: str, data: bytes):
 
 ### Typical Request Flow:
 
-![Request Flow Diagram](../output/docs_request_flow_diagram.png)
+![Request Flow Diagram](images/docs_request_flow_diagram.png)
 
 ---
 
@@ -478,7 +478,7 @@ MCP to protokół komunikacji między AI (np. Cursor) a zewnętrznymi narzędzia
 
 System składa się z **2 kontenerów Docker**:
 
-![Diagram Architektury Docker](../output/docs_architecture_diagram.png)
+![Diagram Architektury Docker](images/docs_architecture_diagram.png)
 
 #### Kontener 1: `plantuml`
 - **Obraz**: `plantuml/plantuml-server:jetty`
@@ -655,7 +655,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
 ### Scenariusz: Generowanie diagramu C4 Context
 
-![Diagram Przepływu Danych](../output/docs_data_flow_diagram.png)
+![Diagram Przepływu Danych](images/docs_data_flow_diagram.png)
 
 ### Szczegółowy przepływ dla `generate_c4_diagram`:
 
@@ -884,7 +884,7 @@ def write_binary_file(file_path: str, data: bytes):
 
 ### Przepływ typowego żądania:
 
-![Diagram Przepływu Żądania](../output/docs_request_flow_diagram.png)
+![Diagram Przepływu Żądania](images/docs_request_flow_diagram.png)
 
 ---
 
