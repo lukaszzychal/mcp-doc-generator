@@ -11,8 +11,8 @@
 
 This guide explains how to configure Cursor to use the MCP documentation server. Two installation methods are available:
 
-1. **npx installation** - Easy, no local setup required
-2. **Docker installation** - More reliable, includes all dependencies
+1. **npx installation** (Recommended) - Easy, automatic Docker management, no local dependencies
+2. **Docker installation** - Manual Docker setup, full control
 
 ## Configuration
 
@@ -26,7 +26,9 @@ This guide explains how to configure Cursor to use the MCP documentation server.
 
 Choose one of the following installation methods:
 
-## Method 1: npx Installation (Recommended for Quick Setup)
+## Method 1: npx Installation (Recommended)
+
+The npx installation automatically manages Docker containers. You only need Docker installed and running - no Python, Graphviz, Pandoc, or other tools required!
 
 ### npx Configuration Options
 
@@ -75,26 +77,16 @@ Choose one of the following installation methods:
 }
 ```
 
-### npx: Environment Variables (Optional)
+### How npx Installation Works
 
-If you need to set environment variables (e.g., custom PlantUML server):
+When you use npx, the wrapper automatically:
 
-```json
-{
-  "mcpServers": {
-    "mcp-doc-generator": {
-      "command": "npx",
-      "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
-      ],
-      "env": {
-        "PLANTUML_SERVER": "http://localhost:8080",
-        "PYTHONPATH": "/path/to/project"
-      }
-    }
-  }
-}
-```
+1. Checks if Docker is installed and running
+2. Builds Docker images if they don't exist
+3. Starts Docker containers if they're not running
+4. Runs the MCP server inside the Docker container
+
+**No manual setup required!** Everything is handled automatically.
 
 ### Step 4: Restart Cursor
 
@@ -116,18 +108,16 @@ Before using npx installation, ensure:
    - Check: `node --version`
    - Install: https://nodejs.org/
 
-2. **Python** >= 3.10 is installed
-   - Check: `python3 --version`
-   - Install: https://www.python.org/
+2. **Docker** and **Docker Compose** are installed
+   - Check: `docker --version` and `docker compose version`
+   - Install: https://docs.docker.com/get-docker/
 
-3. **Python dependencies** are installed:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   Or use Docker (recommended):
-   ```bash
-   docker compose up -d
-   ```
+3. **Docker daemon is running**
+   - macOS/Windows: Start Docker Desktop application
+   - Linux: `sudo systemctl start docker`
+   - Verify: `docker info`
+
+**That's it!** No Python, Graphviz, Pandoc, or other tools need to be installed locally. Everything runs in Docker containers.
 
 ## Troubleshooting
 
@@ -138,18 +128,35 @@ Before using npx installation, ensure:
 - Check if repository is public
 - Verify tag/branch exists
 
-### Problem: "Python 3.10+ is required but not found"
+### Problem: "Docker is not installed or not found in PATH"
 
 **Solution:**
-- Install Python 3.10 or newer
-- Ensure Python is in PATH
-- Check: `python3 --version`
+- Install Docker Desktop (macOS/Windows) or Docker Engine (Linux)
+- Make sure Docker is in PATH
+- Check: `docker --version`
 
-### Problem: "ModuleNotFoundError: No module named 'mcp'"
+### Problem: "Docker daemon is not running"
 
 **Solution:**
-- Install dependencies: `pip install -r requirements.txt`
-- Or use Docker: `docker compose up -d`
+- macOS/Windows: Start Docker Desktop application
+- Linux: `sudo systemctl start docker`
+- Verify: `docker info`
+
+### Problem: "Failed to build Docker images"
+
+**Solution:**
+- Check Docker daemon is running: `docker info`
+- Check internet connection (needs to download base images)
+- Check disk space: `docker system df`
+- Try manually: `docker compose build`
+
+### Problem: "Failed to start Docker containers"
+
+**Solution:**
+- Check if port 8080 is already in use
+- Stop conflicting services on port 8080
+- Check Docker logs: `docker compose logs`
+- Try manually: `docker compose up -d`
 
 ### Problem: MCP tools not visible in Cursor
 
@@ -159,9 +166,9 @@ Before using npx installation, ensure:
 3. Verify configuration syntax (valid JSON)
 4. Check if npx is working: `npx --version`
 
-## Method 2: Docker Installation (Recommended for Production)
+## Method 2: Docker Installation (Manual Setup)
 
-Docker installation is more reliable as it includes all dependencies and provides an isolated environment.
+This method requires manual Docker setup. Use this if you prefer full control over Docker containers or if npx installation doesn't work for you.
 
 ### Prerequisites
 
@@ -232,8 +239,8 @@ See [QUICKSTART.md](QUICKSTART.md) for detailed Docker setup instructions.
 
 Ten przewodnik wyjaśnia jak skonfigurować Cursor do używania serwera MCP dokumentacji. Dostępne są dwie metody instalacji:
 
-1. **Instalacja npx** - Łatwa, bez lokalnej konfiguracji
-2. **Instalacja Docker** - Bardziej niezawodna, zawiera wszystkie zależności
+1. **Instalacja npx** (Zalecane) - Łatwa, automatyczne zarządzanie Dockerem, brak lokalnych zależności
+2. **Instalacja Docker** - Ręczna konfiguracja Dockera, pełna kontrola
 
 ## Konfiguracja
 
@@ -247,7 +254,9 @@ Ten przewodnik wyjaśnia jak skonfigurować Cursor do używania serwera MCP doku
 
 Wybierz jedną z następujących metod instalacji:
 
-## Metoda 1: Instalacja npx (Zalecane dla szybkiej konfiguracji)
+## Metoda 1: Instalacja npx (Zalecane)
+
+Instalacja przez npx automatycznie zarządza kontenerami Docker. Potrzebujesz tylko zainstalowanego i uruchomionego Dockera - nie potrzebujesz Pythona, Graphviz, Pandoc ani innych narzędzi!
 
 ### Opcje konfiguracji npx
 
@@ -296,26 +305,16 @@ Wybierz jedną z następujących metod instalacji:
 }
 ```
 
-### npx: Zmienne środowiskowe (Opcjonalne)
+### Jak działa instalacja npx
 
-Jeśli potrzebujesz ustawić zmienne środowiskowe (np. niestandardowy serwer PlantUML):
+Gdy używasz npx, wrapper automatycznie:
 
-```json
-{
-  "mcpServers": {
-    "mcp-doc-generator": {
-      "command": "npx",
-      "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
-      ],
-      "env": {
-        "PLANTUML_SERVER": "http://localhost:8080",
-        "PYTHONPATH": "/path/to/project"
-      }
-    }
-  }
-}
-```
+1. Sprawdza czy Docker jest zainstalowany i uruchomiony
+2. Buduje obrazy Docker jeśli nie istnieją
+3. Uruchamia kontenery Docker jeśli nie są uruchomione
+4. Uruchamia serwer MCP wewnątrz kontenera Docker
+
+**Brak ręcznej konfiguracji!** Wszystko jest obsługiwane automatycznie.
 
 ### Krok 4: Restart Cursor
 
@@ -337,18 +336,16 @@ Przed użyciem instalacji npx, upewnij się że:
    - Sprawdź: `node --version`
    - Zainstaluj: https://nodejs.org/
 
-2. **Python** >= 3.10 jest zainstalowany
-   - Sprawdź: `python3 --version`
-   - Zainstaluj: https://www.python.org/
+2. **Docker** i **Docker Compose** są zainstalowane
+   - Sprawdź: `docker --version` i `docker compose version`
+   - Zainstaluj: https://docs.docker.com/get-docker/
 
-3. **Zależności Python** są zainstalowane:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   Lub użyj Docker (zalecane):
-   ```bash
-   docker compose up -d
-   ```
+3. **Docker demon jest uruchomiony**
+   - macOS/Windows: Uruchom aplikację Docker Desktop
+   - Linux: `sudo systemctl start docker`
+   - Zweryfikuj: `docker info`
+
+**To wszystko!** Nie trzeba instalować Pythona, Graphviz, Pandoc ani innych narzędzi lokalnie. Wszystko działa w kontenerach Docker.
 
 ## Rozwiązywanie problemów
 
@@ -359,18 +356,35 @@ Przed użyciem instalacji npx, upewnij się że:
 - Sprawdź czy repozytorium jest publiczne
 - Zweryfikuj czy tag/gałąź istnieje
 
-### Problem: "Python 3.10+ is required but not found"
+### Problem: "Docker is not installed or not found in PATH"
 
 **Rozwiązanie:**
-- Zainstaluj Python 3.10 lub nowszy
-- Upewnij się, że Python jest w PATH
-- Sprawdź: `python3 --version`
+- Zainstaluj Docker Desktop (macOS/Windows) lub Docker Engine (Linux)
+- Upewnij się, że Docker jest w PATH
+- Sprawdź: `docker --version`
 
-### Problem: "ModuleNotFoundError: No module named 'mcp'"
+### Problem: "Docker daemon is not running"
 
 **Rozwiązanie:**
-- Zainstaluj zależności: `pip install -r requirements.txt`
-- Lub użyj Docker: `docker compose up -d`
+- macOS/Windows: Uruchom aplikację Docker Desktop
+- Linux: `sudo systemctl start docker`
+- Zweryfikuj: `docker info`
+
+### Problem: "Failed to build Docker images"
+
+**Rozwiązanie:**
+- Sprawdź czy Docker demon działa: `docker info`
+- Sprawdź połączenie z internetem (potrzebne do pobrania obrazów bazowych)
+- Sprawdź miejsce na dysku: `docker system df`
+- Spróbuj ręcznie: `docker compose build`
+
+### Problem: "Failed to start Docker containers"
+
+**Rozwiązanie:**
+- Sprawdź czy port 8080 nie jest zajęty
+- Zatrzymaj konfliktujące serwisy na porcie 8080
+- Sprawdź logi Docker: `docker compose logs`
+- Spróbuj ręcznie: `docker compose up -d`
 
 ### Problem: Narzędzia MCP nie są widoczne w Cursor
 
@@ -380,9 +394,9 @@ Przed użyciem instalacji npx, upewnij się że:
 3. Zweryfikuj składnię konfiguracji (poprawny JSON)
 4. Sprawdź czy npx działa: `npx --version`
 
-## Metoda 2: Instalacja Docker (Zalecane dla produkcji)
+## Metoda 2: Instalacja Docker (Ręczna konfiguracja)
 
-Instalacja Docker jest bardziej niezawodna, ponieważ zawiera wszystkie zależności i zapewnia izolowane środowisko.
+Ta metoda wymaga ręcznej konfiguracji Dockera. Użyj jej jeśli preferujesz pełną kontrolę nad kontenerami Docker lub jeśli instalacja przez npx nie działa.
 
 ### Wymagania wstępne
 
