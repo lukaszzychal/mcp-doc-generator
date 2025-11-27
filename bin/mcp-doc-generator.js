@@ -79,7 +79,7 @@ function buildDockerImages() {
   try {
     execSync('docker compose build', {
       cwd: projectRoot,
-      stdio: 'inherit'
+      stdio: ['ignore', process.stderr, process.stderr]
     });
     return true;
   } catch (e) {
@@ -96,7 +96,7 @@ function startDockerContainers() {
   try {
     execSync('docker compose up -d', {
       cwd: projectRoot,
-      stdio: 'inherit'
+      stdio: ['ignore', process.stderr, process.stderr]
     });
     // Wait a bit for containers to start
     const maxAttempts = 30;
