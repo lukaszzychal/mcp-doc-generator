@@ -34,7 +34,7 @@ npx lukaszzychal/mcp-doc-generator
 ### Option 2: Specific version (tag)
 
 ```bash
-npx github:lukaszzychal/mcp-doc-generator#v0.1.0
+npx github:lukaszzychal/mcp-doc-generator#v0.1.3
 ```
 
 ### Option 3: Specific branch
@@ -82,7 +82,7 @@ Or with a specific tag:
     "documentation": {
       "command": "npx",
       "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.0"
+        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
       ]
     }
   }
@@ -237,7 +237,7 @@ npx lukaszzychal/mcp-doc-generator
 ### Opcja 2: Konkretna wersja (tag)
 
 ```bash
-npx github:lukaszzychal/mcp-doc-generator#v0.1.0
+npx github:lukaszzychal/mcp-doc-generator#v0.1.3
 ```
 
 ### Opcja 3: Konkretna gałąź
@@ -285,7 +285,7 @@ Lub z konkretnym tagiem:
     "documentation": {
       "command": "npx",
       "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.0"
+        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
       ]
     }
   }
