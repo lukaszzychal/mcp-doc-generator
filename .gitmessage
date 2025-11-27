@@ -1,0 +1,41 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# Types:
+#   feat:     A new feature
+#   fix:      A bug fix
+#   docs:     Documentation only changes
+#   style:    Changes that do not affect the meaning of the code
+#   refactor: A code change that neither fixes a bug nor adds a feature
+#   perf:     A code change that improves performance
+#   test:     Adding missing tests or correcting existing tests
+#   chore:    Changes to the build process or auxiliary tools
+#   ci:       Changes to CI configuration files and scripts
+
+# Scope (optional):
+#   Examples: server, client, tools, docs, examples
+
+# Subject:
+#   - Use imperative, present tense: "change" not "changed" nor "changes"
+#   - Don't capitalize first letter
+#   - No dot (.) at the end
+#   - Maximum 72 characters
+
+# Body (optional):
+#   - Explain WHAT and WHY vs. HOW
+#   - Wrap at 72 characters
+#   - Can use multiple paragraphs
+
+# Footer (optional):
+#   - Reference issues: "Closes #123", "Fixes #456"
+#   - Breaking changes: "BREAKING CHANGE: description"
+
+# Examples:
+#   feat(server): add C4 context diagram generation
+#   fix(tools): correct PlantUML container parsing
+#   docs(readme): update installation instructions
+#   refactor(client): simplify MCP request handling
+
