@@ -9,14 +9,6 @@ on:
       - 'requirements.txt'
       - 'src/**'
       - 'bin/**'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'Dockerfile'
-      - 'docker-compose.yml'
-      - 'requirements.txt'
-      - 'src/**'
-      - 'bin/**'
   workflow_dispatch:
 
 env:
