@@ -14,8 +14,8 @@ The MCP server `mcp-doc-generator` can be installed and run directly via `npx`, 
 ## Requirements
 
 - **Node.js** >= 14.0.0 (for npx)
-- **Python** >= 3.10 (for the MCP server)
-- Python dependencies installed (see [requirements.txt](../requirements.txt))
+- **Docker** and **Docker Compose** (for running the server and all dependencies)
+- Docker daemon must be running
 
 ## Installation
 
@@ -48,8 +48,14 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 1. `npx` downloads the repository from GitHub
 2. Detects `package.json` with `bin` configuration
 3. Runs Node.js wrapper (`bin/mcp-doc-generator.js`)
-4. Wrapper runs Python server (`python src/server.py`)
+4. Wrapper automatically:
+   - Checks if Docker is installed and running
+   - Builds Docker images if they don't exist
+   - Starts Docker containers if they're not running
+   - Runs Python server in Docker container (`docker exec -i mcp-documentation-server python src/server.py`)
 5. Server runs in stdio mode (stdin/stdout) according to MCP protocol
+
+**No local installation required!** All dependencies (Python, Graphviz, Pandoc, PlantUML, Mermaid CLI) are included in Docker containers.
 
 ## Configuration in Cursor
 
@@ -85,35 +91,35 @@ Or with a specific tag:
 
 ## Environment Requirements
 
-### Python and dependencies
+### Docker Setup
 
-Before using via npx, make sure that:
+The wrapper automatically manages Docker containers. You only need to:
 
-1. Python 3.10+ is installed and available in PATH
-2. Python dependencies are installed:
+1. **Install Docker** (if not already installed):
+   - macOS: [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
+   - Linux: [Docker Engine](https://docs.docker.com/engine/install/)
+   - Windows: [Docker Desktop](https://docs.docker.com/desktop/install/windows-install/)
 
-```bash
-pip install -r requirements.txt
-```
+2. **Start Docker daemon**:
+   - macOS/Windows: Start Docker Desktop application
+   - Linux: `sudo systemctl start docker`
 
-Or use Docker (recommended):
+3. **Run npx** - the wrapper will automatically:
+   - Check Docker availability
+   - Build images if needed
+   - Start containers if needed
+   - Run the server
 
-```bash
-docker compose up -d
-```
+**No Python, Graphviz, Pandoc, or other tools need to be installed locally!** Everything runs in Docker containers.
 
 ### Environment variables
 
-Wrapper automatically sets:
-- `PYTHONPATH` - points to project root directory
+The server inside Docker container uses:
+- `PLANTUML_SERVER=http://plantuml:8080` - PlantUML server (internal Docker network)
+- `PYTHONPATH=/app` - Python path in container
 - `PYTHONUNBUFFERED=1` - for better logging
-- `PLANTUML_SERVER` - defaults to `http://localhost:8080` (if not set)
 
-You can override environment variables:
-
-```bash
-PLANTUML_SERVER=http://custom-server:8080 npx github:lukaszzychal/mcp-doc-generator
-```
+These are automatically configured in the Docker container. You don't need to set them manually.
 
 ## Local Testing
 
@@ -129,18 +135,35 @@ npx .
 
 ## Troubleshooting
 
-### Problem: "Python 3.10+ is required but not found"
+### Problem: "Docker is not installed or not found in PATH"
 
 **Solution:**
-- Install Python 3.10 or newer
-- Make sure Python is in PATH
-- Check: `python3 --version`
+- Install Docker Desktop (macOS/Windows) or Docker Engine (Linux)
+- Make sure Docker is in PATH
+- Check: `docker --version`
 
-### Problem: "ModuleNotFoundError: No module named 'mcp'"
+### Problem: "Docker daemon is not running"
 
 **Solution:**
-- Install dependencies: `pip install -r requirements.txt`
-- Or use Docker: `docker compose up -d`
+- macOS/Windows: Start Docker Desktop application
+- Linux: `sudo systemctl start docker`
+- Verify: `docker info`
+
+### Problem: "Failed to build Docker images"
+
+**Solution:**
+- Check Docker daemon is running: `docker info`
+- Check internet connection (needs to download base images)
+- Check disk space: `docker system df`
+- Try manually: `docker compose build`
+
+### Problem: "Failed to start Docker containers"
+
+**Solution:**
+- Check if port 8080 is already in use: `lsof -i :8080` (macOS/Linux)
+- Stop conflicting services on port 8080
+- Check Docker logs: `docker compose logs`
+- Try manually: `docker compose up -d`
 
 ### Problem: npx cannot find package
 
@@ -172,9 +195,9 @@ mcp-doc-generator/
 
 | Method | Advantages | Disadvantages |
 |--------|------------|---------------|
-| **npx** | Easy installation, automatic updates | Requires Node.js and Python |
-| **Docker** | Isolated environment, all dependencies | Requires Docker |
-| **Local installation** | Full control | Requires manual dependency installation |
+| **npx** | Easy installation, automatic updates, no local dependencies | Requires Node.js and Docker |
+| **Docker (direct)** | Full control, isolated environment | Requires manual setup |
+| **Local installation** | Full control, no Docker needed | Requires manual installation of all dependencies (Python, Graphviz, Pandoc, etc.) |
 
 ## See also
 
@@ -194,8 +217,8 @@ Serwer MCP `mcp-doc-generator` może być zainstalowany i uruchomiony przez `npx
 ## Wymagania
 
 - **Node.js** >= 14.0.0 (dla npx)
-- **Python** >= 3.10 (dla serwera MCP)
-- Zainstalowane zależności Python (zobacz [requirements.txt](../requirements.txt))
+- **Docker** i **Docker Compose** (do uruchomienia serwera i wszystkich zależności)
+- Docker demon musi być uruchomiony
 
 ## Instalacja
 
@@ -228,8 +251,14 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 1. `npx` pobiera repozytorium z GitHub
 2. Wykrywa `package.json` z konfiguracją `bin`
 3. Uruchamia wrapper Node.js (`bin/mcp-doc-generator.js`)
-4. Wrapper uruchamia serwer Python (`python src/server.py`)
+4. Wrapper automatycznie:
+   - Sprawdza czy Docker jest zainstalowany i uruchomiony
+   - Buduje obrazy Docker jeśli nie istnieją
+   - Uruchamia kontenery Docker jeśli nie są uruchomione
+   - Uruchamia serwer Python w kontenerze Docker (`docker exec -i mcp-documentation-server python src/server.py`)
 5. Serwer działa w trybie stdio (stdin/stdout) zgodnie z protokołem MCP
+
+**Brak lokalnej instalacji!** Wszystkie zależności (Python, Graphviz, Pandoc, PlantUML, Mermaid CLI) są zawarte w kontenerach Docker.
 
 ## Konfiguracja w Cursor
 
@@ -265,35 +294,35 @@ Lub z konkretnym tagiem:
 
 ## Wymagania środowiskowe
 
-### Python i zależności
+### Konfiguracja Docker
 
-Przed użyciem przez npx, upewnij się że:
+Wrapper automatycznie zarządza kontenerami Docker. Musisz tylko:
 
-1. Python 3.10+ jest zainstalowany i dostępny w PATH
-2. Zależności Python są zainstalowane:
+1. **Zainstalować Docker** (jeśli nie jest zainstalowany):
+   - macOS: [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
+   - Linux: [Docker Engine](https://docs.docker.com/engine/install/)
+   - Windows: [Docker Desktop](https://docs.docker.com/desktop/install/windows-install/)
 
-```bash
-pip install -r requirements.txt
-```
+2. **Uruchomić Docker demon**:
+   - macOS/Windows: Uruchom aplikację Docker Desktop
+   - Linux: `sudo systemctl start docker`
 
-Lub użyj Docker (zalecane):
+3. **Uruchomić npx** - wrapper automatycznie:
+   - Sprawdzi dostępność Docker
+   - Zbuduje obrazy jeśli potrzeba
+   - Uruchomi kontenery jeśli potrzeba
+   - Uruchomi serwer
 
-```bash
-docker compose up -d
-```
+**Nie trzeba instalować Pythona, Graphviz, Pandoc ani innych narzędzi lokalnie!** Wszystko działa w kontenerach Docker.
 
 ### Zmienne środowiskowe
 
-Wrapper automatycznie ustawia:
-- `PYTHONPATH` - wskazuje na katalog główny projektu
+Serwer wewnątrz kontenera Docker używa:
+- `PLANTUML_SERVER=http://plantuml:8080` - serwer PlantUML (wewnętrzna sieć Docker)
+- `PYTHONPATH=/app` - ścieżka Python w kontenerze
 - `PYTHONUNBUFFERED=1` - dla lepszego logowania
-- `PLANTUML_SERVER` - domyślnie `http://localhost:8080` (jeśli nie ustawione)
 
-Możesz nadpisać zmienne środowiskowe:
-
-```bash
-PLANTUML_SERVER=http://custom-server:8080 npx github:lukaszzychal/mcp-doc-generator
-```
+Te zmienne są automatycznie skonfigurowane w kontenerze Docker. Nie musisz ich ustawiać ręcznie.
 
 ## Testowanie lokalne
 
@@ -309,18 +338,35 @@ npx .
 
 ## Rozwiązywanie problemów
 
-### Problem: "Python 3.10+ is required but not found"
+### Problem: "Docker is not installed or not found in PATH"
 
 **Rozwiązanie:**
-- Zainstaluj Python 3.10 lub nowszy
-- Upewnij się, że Python jest w PATH
-- Sprawdź: `python3 --version`
+- Zainstaluj Docker Desktop (macOS/Windows) lub Docker Engine (Linux)
+- Upewnij się, że Docker jest w PATH
+- Sprawdź: `docker --version`
 
-### Problem: "ModuleNotFoundError: No module named 'mcp'"
+### Problem: "Docker daemon is not running"
 
 **Rozwiązanie:**
-- Zainstaluj zależności: `pip install -r requirements.txt`
-- Lub użyj Docker: `docker compose up -d`
+- macOS/Windows: Uruchom aplikację Docker Desktop
+- Linux: `sudo systemctl start docker`
+- Zweryfikuj: `docker info`
+
+### Problem: "Failed to build Docker images"
+
+**Rozwiązanie:**
+- Sprawdź czy Docker demon działa: `docker info`
+- Sprawdź połączenie z internetem (potrzebne do pobrania obrazów bazowych)
+- Sprawdź miejsce na dysku: `docker system df`
+- Spróbuj ręcznie: `docker compose build`
+
+### Problem: "Failed to start Docker containers"
+
+**Rozwiązanie:**
+- Sprawdź czy port 8080 nie jest zajęty: `lsof -i :8080` (macOS/Linux)
+- Zatrzymaj konfliktujące serwisy na porcie 8080
+- Sprawdź logi Docker: `docker compose logs`
+- Spróbuj ręcznie: `docker compose up -d`
 
 ### Problem: npx nie znajduje pakietu
 
@@ -352,9 +398,9 @@ mcp-doc-generator/
 
 | Metoda | Zalety | Wady |
 |--------|--------|------|
-| **npx** | Łatwa instalacja, automatyczne aktualizacje | Wymaga Node.js i Python |
-| **Docker** | Izolowane środowisko, wszystkie zależności | Wymaga Docker |
-| **Lokalna instalacja** | Pełna kontrola | Wymaga ręcznej instalacji zależności |
+| **npx** | Łatwa instalacja, automatyczne aktualizacje, brak lokalnych zależności | Wymaga Node.js i Docker |
+| **Docker (bezpośrednio)** | Pełna kontrola, izolowane środowisko | Wymaga ręcznej konfiguracji |
+| **Lokalna instalacja** | Pełna kontrola, brak Dockera | Wymaga ręcznej instalacji wszystkich zależności (Python, Graphviz, Pandoc, itp.) |
 
 ## Zobacz także
 

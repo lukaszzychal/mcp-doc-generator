@@ -42,8 +42,10 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 
 **Requirements:**
 - Node.js >= 14.0.0 (for npx)
-- Python >= 3.10 (for the MCP server)
-- Python dependencies installed (see [requirements.txt](requirements.txt))
+- Docker and Docker Compose (automatically managed by wrapper)
+- Docker daemon must be running
+
+**No local Python, Graphviz, Pandoc, or other tools required!** Everything runs in Docker containers.
 
 For detailed instructions, see [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
@@ -165,9 +167,10 @@ Two installation methods are available:
    - "Generate C4 Context Diagram for e-commerce system"
    - "Create UML Class Diagram with User and Order classes"
 
-#### Method 2: npx (Quick Setup)
+#### Method 2: npx (Recommended - Automatic Docker Management)
 
-1. Configure Cursor MCP settings:
+1. Make sure Docker is installed and running
+2. Configure Cursor MCP settings:
    ```json
    {
      "mcpServers": {
@@ -180,8 +183,9 @@ Two installation methods are available:
      }
    }
    ```
-2. Restart Cursor
-3. Use MCP tools in conversation
+3. Restart Cursor
+4. The wrapper automatically manages Docker containers - no manual setup needed!
+5. Use MCP tools in conversation
 
 **See [CURSOR_NPX_SETUP.md](docs/CURSOR_NPX_SETUP.md) for detailed configuration instructions.**
 
@@ -204,10 +208,17 @@ python3 tests/test_mcp_local.py
 
 ## 🔧 Requirements
 
-- Docker and Docker Compose (recommended)
-- Python 3.10+ (required for MCP server)
-- Node.js >= 14.0.0 (optional, for npx installation)
-- Cursor (optional, for integration)
+### For npx Installation (Recommended)
+- **Node.js** >= 14.0.0 (for npx)
+- **Docker** and **Docker Compose** (automatically managed)
+- **Docker daemon** must be running
+
+### For Direct Docker Installation
+- **Docker** and **Docker Compose**
+- Manual container management
+
+### Optional
+- **Cursor** (for IDE integration)
 
 ## 📝 License
 
@@ -251,8 +262,10 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 
 **Wymagania:**
 - Node.js >= 14.0.0 (dla npx)
-- Python >= 3.10 (dla serwera MCP)
-- Zainstalowane zależności Python (zobacz [requirements.txt](requirements.txt))
+- Docker i Docker Compose (automatycznie zarządzane przez wrapper)
+- Docker demon musi być uruchomiony
+
+**Nie trzeba instalować Pythona, Graphviz, Pandoc ani innych narzędzi lokalnie!** Wszystko działa w kontenerach Docker.
 
 Szczegółowe instrukcje: [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
@@ -373,9 +386,10 @@ Dostępne są dwie metody instalacji:
    - "Wygeneruj C4 Context Diagram dla systemu e-commerce"
    - "Utwórz UML Class Diagram z klasami User i Order"
 
-#### Metoda 2: npx (Szybka konfiguracja)
+#### Metoda 2: npx (Zalecane - Automatyczne zarządzanie Dockerem)
 
-1. Skonfiguruj ustawienia MCP w Cursor:
+1. Upewnij się, że Docker jest zainstalowany i uruchomiony
+2. Skonfiguruj ustawienia MCP w Cursor:
    ```json
    {
      "mcpServers": {
@@ -388,8 +402,9 @@ Dostępne są dwie metody instalacji:
      }
    }
    ```
-2. Zrestartuj Cursor
-3. Użyj narzędzi MCP w konwersacji
+3. Zrestartuj Cursor
+4. Wrapper automatycznie zarządza kontenerami Docker - brak ręcznej konfiguracji!
+5. Użyj narzędzi MCP w konwersacji
 
 **Zobacz [CURSOR_NPX_SETUP.md](docs/CURSOR_NPX_SETUP.md) dla szczegółowych instrukcji konfiguracji.**
 
@@ -415,10 +430,17 @@ python3 tests/test_mcp_local.py
 
 ## 🔧 Wymagania
 
-- Docker i Docker Compose (zalecane)
-- Python 3.10+ (wymagane dla serwera MCP)
-- Node.js >= 14.0.0 (opcjonalnie, dla instalacji przez npx)
-- Cursor (opcjonalnie, dla integracji)
+### Dla instalacji npx (Zalecane)
+- **Node.js** >= 14.0.0 (dla npx)
+- **Docker** i **Docker Compose** (automatycznie zarządzane)
+- **Docker demon** musi być uruchomiony
+
+### Dla bezpośredniej instalacji Docker
+- **Docker** i **Docker Compose**
+- Ręczne zarządzanie kontenerami
+
+### Opcjonalne
+- **Cursor** (dla integracji z IDE)
 
 ## 📝 Licencja
 
