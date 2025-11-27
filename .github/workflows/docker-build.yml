@@ -53,7 +53,7 @@ jobs:
           type=ref,event=branch
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
-          type=sha,format=short
+          type=raw,value={{sha}}
     
     - name: Set PR tag
       if: github.event_name == 'pull_request'
@@ -67,11 +67,13 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" == "pull_request" ]; then
           echo "tags=${{ steps.meta-pr.outputs.tags }}" >> $GITHUB_OUTPUT
-          echo "labels=${{ steps.meta-pr.outputs.labels }}" >> $GITHUB_OUTPUT
+          echo "labels=" >> $GITHUB_OUTPUT
         else
           echo "tags=${{ steps.meta-push.outputs.tags }}" >> $GITHUB_OUTPUT
           echo "labels=${{ steps.meta-push.outputs.labels }}" >> $GITHUB_OUTPUT
-          echo "digest=${{ steps.meta-push.outputs.digest }}" >> $GITHUB_OUTPUT
+          if [ -n "${{ steps.meta-push.outputs.digest }}" ]; then
+            echo "digest=${{ steps.meta-push.outputs.digest }}" >> $GITHUB_OUTPUT
+          fi
         fi
     
     - name: Build and push Docker image
