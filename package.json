@@ -1,0 +1,32 @@
+{
+  "name": "@lukaszzychal/mcp-doc-generator",
+  "version": "0.1.0",
+  "description": "MCP Server for generating technical documentation with diagrams",
+  "author": "Lukasz Zychal",
+  "license": "MIT",
+  "bin": {
+    "mcp-doc-generator": "./bin/mcp-doc-generator.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukaszzychal/mcp-doc-generator.git"
+  },
+  "keywords": [
+    "mcp",
+    "documentation",
+    "diagrams",
+    "plantuml",
+    "mermaid",
+    "graphviz"
+  ],
+  "files": [
+    "bin/",
+    "src/",
+    "requirements.txt",
+    "README.md"
+  ]
+}
+

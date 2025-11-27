@@ -1,0 +1,83 @@
+---
+description: Bilingual documentation standards (EN/PL) for all documentation files
+globs:
+  - "**/*.md"
+  - "README.md"
+  - "docs/**/*.md"
+alwaysApply: true
+---
+
+# Documentation Standards
+
+## Bilingual Documentation (EN/PL)
+
+All documentation files must be bilingual (English/Polish) following this structure:
+
+1. **Primary Language: English** - Write all documentation first in English
+2. **Secondary Language: Polish** - Synchronize Polish version after English is complete
+3. **Structure Pattern:**
+   - Use language anchors: `<a name="english"></a>` and `<a name="polski"></a>`
+   - English section comes first
+   - Polish section comes after, marked with `<a name="polski"></a>`
+   - Use separator: `---` between language sections
+
+## Documentation File Format
+
+```markdown
+# Document Title
+
+**Language / Język:** [English](#english) | [Polski](#polski)
+
+---
+
+<a name="english"></a>
+# English
+
+[English content here]
+
+---
+
+<a name="polski"></a>
+# Polski
+
+[Polish content here - synchronized with English]
+```
+
+## Writing Guidelines
+
+1. **Write English first** - Always create English version first, ensure it's complete and accurate
+2. **Synchronize Polish** - After English is done, create Polish version that:
+   - Maintains the same structure and sections
+   - Preserves code examples (they remain in English)
+   - Translates all explanatory text accurately
+   - Keeps technical terms consistent (use English terms with Polish explanations if needed)
+3. **Code Examples** - Keep code examples in English, add Polish comments if helpful
+4. **Links and References** - Maintain English anchor names, translate link text
+5. **Consistency** - Use consistent terminology across all documents
+
+## Files Requiring Bilingual Content
+
+- README.md
+- All files in `docs/` directory
+- USAGE_GUIDE.md
+- QUICKSTART.md
+- Any new documentation files
+
+## When Creating New Documentation
+
+1. Start with English section
+2. Complete English content fully
+3. Add language separator `---`
+4. Add Polish anchor and section
+5. Translate content maintaining structure
+6. Verify both versions are synchronized
+
+## Code Comments
+
+- Code comments should be in English (standard practice)
+- Polish comments only when explaining Polish-specific features or context
+
+## Commit Messages
+
+- Use English for commit messages
+- Polish is acceptable for minor clarifications in commit body

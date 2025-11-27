@@ -33,7 +33,27 @@ MCP is a communication protocol between AI (e.g., Cursor) and external tools. Th
 
 The system consists of **2 Docker containers**:
 
-![Docker Architecture Diagram](output/docs_architecture_diagram.png)
+```text
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Compose                        │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────────────┐         ┌──────────────────┐     │
+│  │  plantuml        │         │  mcp-server      │     │
+│  │  (port 8080)     │◄────────┤  (Python)        │     │
+│  │                  │  HTTP   │                  │     │
+│  │  Renders         │         │  Main MCP        │     │
+│  │  diagrams        │         │  Server          │     │
+│  └──────────────────┘         └──────────────────┘     │
+│                                    ▲                     │
+│                                    │ stdio               │
+│                                    │ (JSON-RPC)          │
+│                                    │                     │
+│                          ┌─────────┴─────────┐          │
+│                          │   Cursor / Client │          │
+│                          └───────────────────┘          │
+└─────────────────────────────────────────────────────────┘
+```
 
 #### Container 1: `plantuml`
 - **Image**: `plantuml/plantuml-server:jetty`
@@ -206,7 +226,69 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
 ### Scenario: Generating C4 Context Diagram
 
-![Data Flow Sequence Diagram](output/docs_data_flow_diagram.png)
+```text
+┌─────────┐
+│ Cursor  │
+└────┬────┘
+     │ 1. tools/list
+     ├──────────────────────────────────────┐
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│  MCP Server     │                        │
+│  (server.py)    │                        │
+└────┬────────────┘                        │
+     │ 2. Returns list of tools            │
+     │                                      │
+     │ 3. tools/call                        │
+     │    generate_c4_diagram               │
+     ├──────────────────────────────────────┤
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ plantuml.py     │                        │
+│ generate_c4_    │                        │
+│ diagram()       │                        │
+└────┬────────────┘                        │
+     │ 4. Prepares PlantUML code          │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ _render_        │                        │
+│ plantuml()      │                        │
+└────┬────────────┘                        │
+     │ 5. POST to http://plantuml:8080/png │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ PlantUML Server │                        │
+│ (Docker)        │                        │
+└────┬────────────┘                        │
+     │ 6. Renders diagram                  │
+     │    Returns PNG                       │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ file_manager.py │                        │
+│ write_binary_   │                        │
+│ file()          │                        │
+└────┬────────────┘                        │
+     │ 7. Saves to output/diagram.png      │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│  MCP Server     │                        │
+│  Returns result │                        │
+└────┬────────────┘                        │
+     │ 8. "✓ C4 context generated..."       │
+     │                                      │
+     ▼                                      │
+┌─────────┐                                │
+│ Cursor  │                                │
+│ Shows   │                                │
+│ result  │                                │
+└─────────┘                                │
+```
 
 ### Detailed Flow for `generate_c4_diagram`:
 
@@ -434,7 +516,11 @@ def write_binary_file(file_path: str, data: bytes):
 
 ### Typical Request Flow:
 
-![Request Flow Diagram](output/docs_request_flow_diagram.png)
+```text
+Cursor → JSON-RPC → MCP Server → Tool Module → 
+External Service (PlantUML/Mermaid/etc.) → 
+File Save → Response → Cursor
+```
 
 ---
 
@@ -478,7 +564,27 @@ MCP to protokół komunikacji między AI (np. Cursor) a zewnętrznymi narzędzia
 
 System składa się z **2 kontenerów Docker**:
 
-![Diagram Architektury Docker](output/docs_architecture_diagram.png)
+```text
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Compose                        │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────────────┐         ┌──────────────────┐     │
+│  │  plantuml        │         │  mcp-server      │     │
+│  │  (port 8080)     │◄────────┤  (Python)        │     │
+│  │                  │  HTTP   │                  │     │
+│  │  Renderuje       │         │  Główny serwer   │     │
+│  │  diagramy        │         │  MCP             │     │
+│  └──────────────────┘         └──────────────────┘     │
+│                                    ▲                     │
+│                                    │ stdio               │
+│                                    │ (JSON-RPC)          │
+│                                    │                     │
+│                          ┌─────────┴─────────┐          │
+│                          │   Cursor / Klient │          │
+│                          └───────────────────┘          │
+└─────────────────────────────────────────────────────────┘
+```
 
 #### Kontener 1: `plantuml`
 - **Obraz**: `plantuml/plantuml-server:jetty`
@@ -655,7 +761,69 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
 
 ### Scenariusz: Generowanie diagramu C4 Context
 
-![Diagram Przepływu Danych](output/docs_data_flow_diagram.png)
+```text
+┌─────────┐
+│ Cursor  │
+└────┬────┘
+     │ 1. tools/list
+     ├──────────────────────────────────────┐
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│  MCP Server     │                        │
+│  (server.py)    │                        │
+└────┬────────────┘                        │
+     │ 2. Zwraca listę narzędzi            │
+     │                                      │
+     │ 3. tools/call                        │
+     │    generate_c4_diagram               │
+     ├──────────────────────────────────────┤
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ plantuml.py     │                        │
+│ generate_c4_    │                        │
+│ diagram()       │                        │
+└────┬────────────┘                        │
+     │ 4. Przygotowuje kod PlantUML        │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ _render_        │                        │
+│ plantuml()      │                        │
+└────┬────────────┘                        │
+     │ 5. POST do http://plantuml:8080/png │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ PlantUML Server │                        │
+│ (Docker)        │                        │
+└────┬────────────┘                        │
+     │ 6. Renderuje diagram                │
+     │    Zwraca PNG                       │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│ file_manager.py │                        │
+│ write_binary_   │                        │
+│ file()          │                        │
+└────┬────────────┘                        │
+     │ 7. Zapisuje do output/diagram.png    │
+     │                                      │
+     ▼                                      │
+┌─────────────────┐                        │
+│  MCP Server     │                        │
+│  Zwraca wynik   │                        │
+└────┬────────────┘                        │
+     │ 8. "✓ C4 context generated..."      │
+     │                                      │
+     ▼                                      │
+┌─────────┐                                │
+│ Cursor  │                                │
+│ Pokazuje│                                │
+│ wynik   │                                │
+└─────────┘                                │
+```
 
 ### Szczegółowy przepływ dla `generate_c4_diagram`:
 
@@ -884,7 +1052,11 @@ def write_binary_file(file_path: str, data: bytes):
 
 ### Przepływ typowego żądania:
 
-![Diagram Przepływu Żądania](output/docs_request_flow_diagram.png)
+```text
+Cursor → JSON-RPC → MCP Server → Moduł narzędziowy → 
+Zewnętrzny serwis (PlantUML/Mermaid/etc.) → 
+Zapis pliku → Odpowiedź → Cursor
+```
 
 ---
 
