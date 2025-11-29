@@ -55,7 +55,7 @@ The npx installation automatically manages Docker containers. You only need Dock
     "mcp-doc-generator": {
       "command": "npx",
       "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
+        "github:lukaszzychal/mcp-doc-generator#v0.1.6"
       ]
     }
   }
@@ -283,7 +283,7 @@ Instalacja przez npx automatycznie zarządza kontenerami Docker. Potrzebujesz ty
     "mcp-doc-generator": {
       "command": "npx",
       "args": [
-        "github:lukaszzychal/mcp-doc-generator#v0.1.3"
+        "github:lukaszzychal/mcp-doc-generator#v0.1.6"
       ]
     }
   }

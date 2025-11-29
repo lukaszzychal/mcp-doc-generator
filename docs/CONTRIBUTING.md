@@ -170,9 +170,9 @@ async def test_my_tool():
 
 ## Pytania?
 
-- Otwórz Issue z pytaniem
-- Dołącz do dyskusji w istniejących Issues
-- Skontaktuj się z maintainerami
+- Otwórz [Issue](https://github.com/lukaszzychal/mcp-doc-generator/issues) z pytaniem
+- Dołącz do [dyskusji](https://github.com/lukaszzychal/mcp-doc-generator/discussions) w istniejących Issues
+- Skontaktuj się z maintainerami: lukasz.zychal.dev@gmail.com
 
 ## Kodeks Postępowania
 
