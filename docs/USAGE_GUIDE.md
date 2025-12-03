@@ -253,6 +253,57 @@ Save as output/uml-class.png
 - **Templates:** adr, api_spec, c4_context, microservices_overview
 - **Description:** Creates documents from ready-made templates
 
+### 12. generate_image_openai
+- **Requires:** OPENAI_API_KEY environment variable
+- **Formats:** png
+- **Description:** Generates images using OpenAI DALL-E 3
+- **Note:** Automatically translates Polish text to English for better rendering (see README.md for details)
+
+### 13. generate_icon_openai
+- **Requires:** OPENAI_API_KEY environment variable
+- **Formats:** png
+- **Description:** Generates icons using OpenAI DALL-E 3
+- **Note:** Automatically translates Polish text to English for better rendering
+
+### 14. generate_illustration_openai
+- **Requires:** OPENAI_API_KEY environment variable
+- **Formats:** png
+- **Description:** Generates illustrations using OpenAI DALL-E 3
+- **Note:** Automatically translates Polish text to English for better rendering
+
+**OpenAI Tools Configuration:**
+- Set `OPENAI_API_KEY` environment variable
+- Get API key from: https://platform.openai.com/api-keys
+- Pricing: $0.04-0.12 per image
+- **Important:** Polish text in prompts is automatically translated to English for accurate rendering (DALL-E 3 limitation)
+
+**Usage Examples:**
+
+**Example 1: Generate illustration in Cursor**
+```
+Wygeneruj ilustrację mapy myśli "Zasady dobrego kodu" z centralnym węzłem 
+"Dobry kod = prosty, elastyczny, odporny" i 5 gałęziami: SOLID, DRY, KISS, GRASP, CUPID.
+Zapisz jako output/mindmap.png
+```
+
+**Example 2: Generate icon using mcp_client.py**
+```bash
+export OPENAI_API_KEY=sk-...
+python3 scripts/mcp_client.py -p "Wygeneruj ikonę serwera w stylu flat design. Zapisz jako output/server-icon.png"
+```
+
+**Example 3: Generate poster/illustration**
+```bash
+python3 scripts/mcp_client.py -p "Wygeneruj plakat z zasadami programowania SOLID, DRY, KISS. Zapisz jako output/poster.png"
+```
+
+**How it works:**
+1. You provide a simple description/prompt (can be in Polish)
+2. MCP server automatically detects it's an OpenAI tool request
+3. Polish text is automatically translated to English
+4. Image is generated and saved to specified path
+5. No Python code needed - just describe what you want!
+
 ---
 
 ## Requirements
@@ -736,6 +787,57 @@ ls -lh output/
 ### 11. create_document_from_template
 - **Szablony:** adr, api_spec, c4_context, microservices_overview
 - **Opis:** Tworzy dokumenty z gotowych szablonów
+
+### 12. generate_image_openai
+- **Wymaga:** Zmienna środowiskowa OPENAI_API_KEY
+- **Formaty:** png
+- **Opis:** Generuje obrazy używając OpenAI DALL-E 3
+- **Uwaga:** Automatycznie tłumaczy polski tekst na angielski dla lepszego renderowania (zobacz README.md dla szczegółów)
+
+### 13. generate_icon_openai
+- **Wymaga:** Zmienna środowiskowa OPENAI_API_KEY
+- **Formaty:** png
+- **Opis:** Generuje ikony używając OpenAI DALL-E 3
+- **Uwaga:** Automatycznie tłumaczy polski tekst na angielski dla lepszego renderowania
+
+### 14. generate_illustration_openai
+- **Wymaga:** Zmienna środowiskowa OPENAI_API_KEY
+- **Formaty:** png
+- **Opis:** Generuje ilustracje używając OpenAI DALL-E 3
+- **Uwaga:** Automatycznie tłumaczy polski tekst na angielski dla lepszego renderowania
+
+**Konfiguracja Narzędzi OpenAI:**
+- Ustaw zmienną środowiskową `OPENAI_API_KEY`
+- Pobierz klucz API z: https://platform.openai.com/api-keys
+- Cennik: $0.04-0.12 za obraz
+- **Ważne:** Polski tekst w promptach jest automatycznie tłumaczony na angielski dla dokładnego renderowania (ograniczenie DALL-E 3)
+
+**Przykłady Użycia:**
+
+**Przykład 1: Generowanie ilustracji w Cursor**
+```
+Wygeneruj ilustrację mapy myśli "Zasady dobrego kodu" z centralnym węzłem 
+"Dobry kod = prosty, elastyczny, odporny" i 5 gałęziami: SOLID, DRY, KISS, GRASP, CUPID.
+Zapisz jako output/mindmap.png
+```
+
+**Przykład 2: Generowanie ikony używając mcp_client.py**
+```bash
+export OPENAI_API_KEY=sk-...
+python3 scripts/mcp_client.py -p "Wygeneruj ikonę serwera w stylu flat design. Zapisz jako output/server-icon.png"
+```
+
+**Przykład 3: Generowanie plakatu/ilustracji**
+```bash
+python3 scripts/mcp_client.py -p "Wygeneruj plakat z zasadami programowania SOLID, DRY, KISS. Zapisz jako output/poster.png"
+```
+
+**Jak to działa:**
+1. Podajesz prosty opis/prompt (może być po polsku)
+2. Serwer MCP automatycznie wykrywa, że to prośba o narzędzie OpenAI
+3. Polski tekst jest automatycznie tłumaczony na angielski
+4. Obraz jest generowany i zapisywany do określonej ścieżki
+5. Nie trzeba pisać kodu Python - wystarczy opisać co chcesz!
 
 ---
 
