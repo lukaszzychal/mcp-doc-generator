@@ -1,6 +1,6 @@
 [project]
 name = "mcp-documentation-server"
-version = "0.1.6"
+version = "0.1.7"
 description = "MCP Server for generating technical documentation with diagrams"
 authors = [{name = "Lukasz Zychal"}]
 readme = "README.md"

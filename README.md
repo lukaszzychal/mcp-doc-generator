@@ -34,7 +34,7 @@ You can install and run the server directly via `npx` without cloning the reposi
 npx github:lukaszzychal/mcp-doc-generator
 
 # Specific version (tag)
-npx github:lukaszzychal/mcp-doc-generator#v0.1.6
+npx github:lukaszzychal/mcp-doc-generator#v0.1.7
 
 # Specific branch
 npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
@@ -51,19 +51,20 @@ For detailed instructions, see [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
 ## 📦 Stable Release
 
-**Latest stable version:** [v0.1.6](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.6)
+**Latest stable version:** [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7)
 
 For production use, we recommend using a tagged release:
 
 ```bash
 # Clone specific version
-git clone --branch v0.1.6 https://github.com/lukaszzychal/mcp-doc-generator.git
+git clone --branch v0.1.7 https://github.com/lukaszzychal/mcp-doc-generator.git
 
 # Or checkout tag in existing repo
-git checkout v0.1.6
+git checkout v0.1.7
 ```
 
 **Available releases:**
+- [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7) - Update version to 0.1.7 and add contact information
 - [v0.1.6](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.6) - Fix npx installation (include Docker files)
 - [v0.1.5](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.5) - Docker-based automatic container management
 - [v0.1.4](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.4) - Commit message rules and validation hooks
@@ -180,7 +181,7 @@ Two installation methods are available:
        "mcp-doc-generator": {
          "command": "npx",
          "args": [
-           "github:lukaszzychal/mcp-doc-generator#v0.1.6"
+           "github:lukaszzychal/mcp-doc-generator#v0.1.7"
          ]
        }
      }
@@ -263,7 +264,7 @@ Możesz zainstalować i uruchomić serwer bezpośrednio przez `npx` bez klonowan
 npx github:lukaszzychal/mcp-doc-generator
 
 # Konkretna wersja (tag)
-npx github:lukaszzychal/mcp-doc-generator#v0.1.6
+npx github:lukaszzychal/mcp-doc-generator#v0.1.7
 
 # Konkretna gałąź
 npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
@@ -280,19 +281,20 @@ Szczegółowe instrukcje: [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
 ## 📦 Stabilna Wersja
 
-**Najnowsza stabilna wersja:** [v0.1.6](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.6)
+**Najnowsza stabilna wersja:** [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7)
 
 Do użycia produkcyjnego zalecamy użycie tagowanej wersji:
 
 ```bash
 # Sklonuj konkretną wersję
-git clone --branch v0.1.6 https://github.com/lukaszzychal/mcp-doc-generator.git
+git clone --branch v0.1.7 https://github.com/lukaszzychal/mcp-doc-generator.git
 
 # Lub przełącz się na tag w istniejącym repo
-git checkout v0.1.6
+git checkout v0.1.7
 ```
 
 **Dostępne wydania:**
+- [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7) - Aktualizacja wersji do 0.1.7 i dodanie informacji kontaktowej
 - [v0.1.6](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.6) - Naprawa instalacji npx (zawiera pliki Docker)
 - [v0.1.5](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.5) - Automatyczne zarządzanie kontenerami Docker
 - [v0.1.4](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.4) - Reguły commitów i hooki walidacji
@@ -408,7 +410,7 @@ Dostępne są dwie metody instalacji:
        "mcp-doc-generator": {
          "command": "npx",
          "args": [
-           "github:lukaszzychal/mcp-doc-generator#v0.1.6"
+           "github:lukaszzychal/mcp-doc-generator#v0.1.7"
          ]
        }
      }
