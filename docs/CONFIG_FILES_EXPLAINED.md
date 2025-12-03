@@ -26,11 +26,18 @@ dockerfilePath = "Dockerfile"        # Location of Dockerfile
 
 [deploy]
 startCommand = "python src/server.py"  # Command to start the server
-healthcheckPath = "/"                # Health check endpoint
-healthcheckTimeout = 300             # 5 minutes timeout
+# Note: healthcheckPath removed - MCP server uses stdio protocol, not HTTP
+# Railway monitors process health via process status instead
 restartPolicyType = "ON_FAILURE"     # Restart if app crashes
 restartPolicyMaxRetries = 10         # Try 10 times before giving up
 ```
+
+**Important Note about Stdio Servers:**
+This MCP server communicates via stdio (stdin/stdout), not HTTP. Therefore:
+- ❌ No HTTP healthcheck endpoints (removed `healthcheckPath`)
+- ✅ Railway monitors process health via process status
+- ✅ Process-based restart policies work correctly
+- ⚠️ MCP servers are typically used locally; Railway deployment is for specific use cases
 
 **When is it used?**
 - When you deploy to Railway platform
@@ -217,11 +224,18 @@ dockerfilePath = "Dockerfile"        # Lokalizacja Dockerfile
 
 [deploy]
 startCommand = "python src/server.py"  # Komenda uruchomienia serwera
-healthcheckPath = "/"                # Endpoint sprawdzania zdrowia
-healthcheckTimeout = 300             # Timeout 5 minut
+# Uwaga: healthcheckPath usunięty - serwer MCP używa protokołu stdio, nie HTTP
+# Railway monitoruje zdrowie procesu przez status procesu
 restartPolicyType = "ON_FAILURE"     # Restart przy awarii
 restartPolicyMaxRetries = 10         # Spróbuj 10 razy przed rezygnacją
 ```
+
+**Ważna Uwaga o Serwerach Stdio:**
+Ten serwer MCP komunikuje się przez stdio (stdin/stdout), nie przez HTTP. Dlatego:
+- ❌ Brak endpointów HTTP healthcheck (usunięto `healthcheckPath`)
+- ✅ Railway monitoruje zdrowie procesu przez status procesu
+- ✅ Polityki restartu oparte na procesach działają poprawnie
+- ⚠️ Serwery MCP są zazwyczaj używane lokalnie; wdrożenie na Railway jest dla specyficznych przypadków użycia
 
 **Kiedy jest używany?**
 - Przy wdrażaniu na platformę Railway

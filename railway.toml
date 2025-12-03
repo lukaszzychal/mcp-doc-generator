@@ -4,8 +4,8 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "python src/server.py"
-healthcheckPath = "/"
-healthcheckTimeout = 300
+# Note: healthcheckPath removed - MCP server uses stdio protocol, not HTTP
+# Railway will monitor the process health via process status instead
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
