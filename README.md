@@ -92,12 +92,23 @@ Instead of fighting DALL-E 3's limitations, we automatically translate Polish to
 - ✅ No manual translation needed
 - ✅ Seamless user experience (you can still use Polish prompts!)
 
-**How it works:**
-- Automatically detects Polish words (containing Polish diacritics: ą, ć, ę, ł, ń, ó, ś, ź, ż)
-- Translates detected words to English using Google Translate API (via `deep-translator`)
-- Uses a manual dictionary for common terms (faster, no API calls)
-- Caches translations to avoid repeated API calls
-- Adds explicit instructions to DALL-E 3 to render all visible text in English
+**How it works (Hybrid Approach):**
+1. **DALL-E 3 generates graphics without text** - Visual elements only (shapes, icons, colors)
+2. **Text labels are extracted** from your prompt automatically
+3. **PIL/Pillow adds text overlay** - Perfect text rendering with precise positioning
+4. **Result**: Beautiful graphics from DALL-E 3 + perfect text from PIL
+
+**Benefits:**
+- ✅ **100% accurate text** - No misspellings or errors
+- ✅ **Supports all languages** - Polish with diacritics works perfectly
+- ✅ **Professional quality** - Clean, readable labels
+- ✅ **Consistent results** - Same text every time
+
+**Technical details:**
+- Automatically detects Polish words and translates for prompt clarity
+- Extracts text labels (titles, acronyms, labels) from your prompt
+- Uses DejaVu Sans font (supports Polish characters)
+- Positions text intelligently (central labels, branch labels for mind maps)
 
 **Example:**
 - Input prompt: `"Diagram z tytułem 'DOBRY KOD' pokazujący Struktura SOLID"`
@@ -411,12 +422,23 @@ Zamiast walczyć z ograniczeniami DALL-E 3, automatycznie tłumaczymy polski na 
 - ✅ Brak potrzeby ręcznego tłumaczenia
 - ✅ Płynne doświadczenie użytkownika (możesz nadal używać polskich promptów!)
 
-**Jak to działa:**
-- Automatycznie wykrywa polskie słowa (zawierające polskie znaki diakrytyczne: ą, ć, ę, ł, ń, ó, ś, ź, ż)
-- Tłumaczy wykryte słowa na angielski używając Google Translate API (przez `deep-translator`)
-- Używa ręcznego słownika dla popularnych terminów (szybsze, bez wywołań API)
-- Cache'uje tłumaczenia, aby uniknąć powtarzających się wywołań API
-- Dodaje wyraźne instrukcje dla DALL-E 3, aby renderować cały widoczny tekst po angielsku
+**Jak to działa (Podejście Hybrydowe):**
+1. **DALL-E 3 generuje grafikę bez tekstu** - Tylko elementy wizualne (kształty, ikony, kolory)
+2. **Etykiety tekstowe są wyodrębniane** z Twojego promptu automatycznie
+3. **PIL/Pillow dodaje nakładkę tekstową** - Doskonałe renderowanie tekstu z precyzyjnym pozycjonowaniem
+4. **Wynik**: Piękna grafika z DALL-E 3 + doskonały tekst z PIL
+
+**Zalety:**
+- ✅ **100% dokładny tekst** - Brak błędów ortograficznych
+- ✅ **Obsługuje wszystkie języki** - Polski z diakrytykami działa doskonale
+- ✅ **Profesjonalna jakość** - Czyste, czytelne etykiety
+- ✅ **Spójne wyniki** - Ten sam tekst za każdym razem
+
+**Szczegóły techniczne:**
+- Automatycznie wykrywa polskie słowa i tłumaczy dla jasności promptu
+- Wyodrębnia etykiety tekstowe (tytuły, akronimy, etykiety) z Twojego promptu
+- Używa czcionki DejaVu Sans (obsługuje polskie znaki)
+- Inteligentnie pozycjonuje tekst (etykiety centralne, etykiety gałęzi dla map myśli)
 
 **Przykład:**
 - Prompt wejściowy: `"Diagram z tytułem 'DOBRY KOD' pokazujący Struktura SOLID"`

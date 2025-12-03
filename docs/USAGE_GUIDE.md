@@ -275,7 +275,8 @@ Save as output/uml-class.png
 - Set `OPENAI_API_KEY` environment variable
 - Get API key from: https://platform.openai.com/api-keys
 - Pricing: $0.04-0.12 per image
-- **Important:** Polish text in prompts is automatically translated to English for accurate rendering (DALL-E 3 limitation)
+- **Hybrid Text Rendering:** Uses DALL-E 3 for graphics + PIL/Pillow for perfect text overlay
+- **Important:** Text is rendered by PIL, not DALL-E 3, ensuring 100% accuracy and Polish support
 
 **Usage Examples:**
 
@@ -810,7 +811,8 @@ ls -lh output/
 - Ustaw zmienną środowiskową `OPENAI_API_KEY`
 - Pobierz klucz API z: https://platform.openai.com/api-keys
 - Cennik: $0.04-0.12 za obraz
-- **Ważne:** Polski tekst w promptach jest automatycznie tłumaczony na angielski dla dokładnego renderowania (ograniczenie DALL-E 3)
+- **Hybrydowe Renderowanie Tekstu:** Używa DALL-E 3 dla grafiki + PIL/Pillow dla doskonałej nakładki tekstowej
+- **Ważne:** Tekst jest renderowany przez PIL, nie DALL-E 3, zapewniając 100% dokładność i wsparcie dla polskiego
 
 **Przykłady Użycia:**
 
