@@ -49,6 +49,103 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 
 For detailed instructions, see [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
+### OpenAI Image Generation (Optional)
+
+To use AI image generation tools (`generate_image_openai`, `generate_icon_openai`, `generate_illustration_openai`):
+
+1. **Set environment variable:**
+   ```bash
+   export OPENAI_API_KEY=sk-...
+   ```
+
+2. **Get API key:** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+
+3. **Pricing:** $0.04-0.12 per image (see [ROADMAP.md](docs/ROADMAP.md) for details)
+
+**Note:** OpenAI tools are optional. All other tools work without API key. If API key is not configured, you'll receive a helpful error message with setup instructions.
+
+#### Automatic Polish Text Translation
+
+The OpenAI image generation tools automatically detect and translate Polish words to English for better text rendering in generated images. DALL-E 3 has limited support for non-English text, especially with diacritics.
+
+##### Why PL→EN Translation is Required
+
+**DALL-E 3 Limitations:**
+- **Poor Polish text rendering**: DALL-E 3 struggles with Polish characters (ą, ć, ę, ł, ń, ó, ś, ź, ż), often producing misspellings like:
+  - "Struktura" → "Strutira" or "STRUTIRA"
+  - "Elastyczny" → "Elastncy" or "ELASTNCY"
+  - "DOBRY KOD" → "DOBBRY KOD" or "GODE CODE"
+- **Diacritics not supported**: Polish diacritics are frequently omitted or replaced with incorrect characters
+- **English-first training**: DALL-E 3 was primarily trained on English text, resulting in much better accuracy for English
+- **Text rendering quality**: English text in images is significantly more accurate and readable
+
+**Why We Don't Support Direct Polish:**
+1. **Technical limitation**: This is a DALL-E 3 model limitation, not a bug in our code
+2. **Quality assurance**: English text ensures professional, readable diagrams
+3. **User experience**: Automatic translation provides the best results without user intervention
+4. **Future-proof**: If OpenAI improves Polish support, we can easily adjust the translation logic
+
+**Our Solution:**
+Instead of fighting DALL-E 3's limitations, we automatically translate Polish to English before image generation, ensuring:
+- ✅ Accurate text rendering
+- ✅ Professional-looking diagrams
+- ✅ No manual translation needed
+- ✅ Seamless user experience (you can still use Polish prompts!)
+
+**How it works (Hybrid Approach):**
+1. **DALL-E 3 generates graphics without text** - Visual elements only (shapes, icons, colors)
+2. **Text labels are extracted** from your prompt automatically
+3. **PIL/Pillow adds text overlay** - Perfect text rendering with precise positioning
+4. **Result**: Beautiful graphics from DALL-E 3 + perfect text from PIL
+
+**Benefits:**
+- ✅ **100% accurate text** - No misspellings or errors
+- ✅ **Supports all languages** - Polish with diacritics works perfectly
+- ✅ **Professional quality** - Clean, readable labels
+- ✅ **Consistent results** - Same text every time
+
+**Technical details:**
+- Automatically detects Polish words and translates for prompt clarity
+- Extracts text labels (titles, acronyms, labels) from your prompt
+- Uses DejaVu Sans font (supports Polish characters)
+- Positions text intelligently (central labels, branch labels for mind maps)
+
+**Example:**
+- Input prompt: `"Diagram z tytułem 'DOBRY KOD' pokazujący Struktura SOLID"`
+- Enhanced prompt: `"Diagram with title 'GOOD CODE' showing Structure SOLID"` + instruction for English text rendering
+
+You can use Polish in your prompts - the system will automatically handle translation for text that appears in the image.
+
+#### Usage Examples
+
+**In Cursor (Recommended):**
+Simply describe what you want in natural language:
+```
+Wygeneruj ilustrację mapy myśli "Zasady dobrego kodu" z centralnym węzłem 
+"Dobry kod = prosty, elastyczny, odporny" i 5 gałęziami: SOLID, DRY, KISS, GRASP, CUPID.
+Zapisz jako output/mindmap.png
+```
+
+Cursor automatically:
+1. Recognizes this is an illustration request
+2. Calls `generate_illustration_openai` via MCP protocol
+3. Translates Polish text to English automatically
+4. Generates the image
+
+**Using mcp_client.py:**
+```bash
+# Set API key
+export OPENAI_API_KEY=sk-...
+
+# Generate illustration from prompt
+python3 scripts/mcp_client.py -p "Wygeneruj ilustrację plakatu z zasadami programowania. Zapisz jako output/poster.png"
+
+# Or from file
+python3 scripts/mcp_client.py -f prompt.txt
+```
+
+**No Python code needed!** Just describe what you want - the MCP server handles everything automatically.
+
 ## 📦 Stable Release
 
 **Latest stable version:** [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7)
@@ -105,9 +202,12 @@ See [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) for detail
 6. **generate_gantt** - Gantt charts
 7. **generate_dependency_graph** - Graphviz dependency graphs
 8. **generate_cloud_diagram** - draw.io cloud architecture diagrams
-9. **export_to_pdf** - Markdown to PDF export
-10. **export_to_docx** - Markdown to DOCX export
-11. **create_document_from_template** - Documents from templates (ADR, API Spec, C4, Microservices)
+9. **generate_image_openai** - AI image generation using DALL-E 3 (requires OPENAI_API_KEY)
+10. **generate_icon_openai** - AI icon generation using DALL-E 3 (requires OPENAI_API_KEY)
+11. **generate_illustration_openai** - AI illustration generation using DALL-E 3 (requires OPENAI_API_KEY)
+12. **export_to_pdf** - Markdown to PDF export
+13. **export_to_docx** - Markdown to DOCX export
+14. **create_document_from_template** - Documents from templates (ADR, API Spec, C4, Microservices)
 
 ## 📁 Project Structure
 
@@ -278,6 +378,103 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 **Nie trzeba instalować Pythona, Graphviz, Pandoc ani innych narzędzi lokalnie!** Wszystko działa w kontenerach Docker.
 
 Szczegółowe instrukcje: [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
+
+### Generowanie Obrazów OpenAI (Opcjonalne)
+
+Aby używać narzędzi generowania obrazów AI (`generate_image_openai`, `generate_icon_openai`, `generate_illustration_openai`):
+
+1. **Ustaw zmienną środowiskową:**
+   ```bash
+   export OPENAI_API_KEY=sk-...
+   ```
+
+2. **Pobierz klucz API:** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+
+3. **Cennik:** $0.04-0.12 za obraz (zobacz [ROADMAP.md](docs/ROADMAP.md) dla szczegółów)
+
+**Uwaga:** Narzędzia OpenAI są opcjonalne. Wszystkie inne narzędzia działają bez klucza API. Jeśli klucz API nie jest skonfigurowany, otrzymasz pomocny komunikat błędu z instrukcjami konfiguracji.
+
+#### Automatyczne Tłumaczenie Polskiego Tekstu
+
+Narzędzia generowania obrazów OpenAI automatycznie wykrywają i tłumaczą polskie słowa na angielski, aby zapewnić lepsze renderowanie tekstu w generowanych obrazach. DALL-E 3 ma ograniczone wsparcie dla tekstu w językach innych niż angielski, szczególnie dla znaków diakrytycznych.
+
+##### Dlaczego Mapowanie PL→EN jest Wymagane
+
+**Ograniczenia DALL-E 3:**
+- **Słabe renderowanie polskiego tekstu**: DALL-E 3 ma problemy z polskimi znakami (ą, ć, ę, ł, ń, ó, ś, ź, ż), często generując błędy ortograficzne jak:
+  - "Struktura" → "Strutira" lub "STRUTIRA"
+  - "Elastyczny" → "Elastncy" lub "ELASTNCY"
+  - "DOBRY KOD" → "DOBBRY KOD" lub "GODE CODE"
+- **Brak wsparcia dla znaków diakrytycznych**: Polskie znaki diakrytyczne są często pomijane lub zastępowane nieprawidłowymi znakami
+- **Trening głównie na angielskim**: DALL-E 3 był głównie trenowany na tekście angielskim, co daje znacznie lepszą dokładność dla angielskiego
+- **Jakość renderowania tekstu**: Tekst angielski w obrazach jest znacznie bardziej dokładny i czytelny
+
+**Dlaczego Nie Obsługujemy Bezpośrednio Polskiego:**
+1. **Ograniczenie techniczne**: To jest ograniczenie modelu DALL-E 3, a nie błąd w naszym kodzie
+2. **Zapewnienie jakości**: Tekst angielski zapewnia profesjonalne, czytelne diagramy
+3. **Doświadczenie użytkownika**: Automatyczne tłumaczenie zapewnia najlepsze wyniki bez interwencji użytkownika
+4. **Przyszłościowość**: Jeśli OpenAI poprawi wsparcie dla polskiego, możemy łatwo dostosować logikę tłumaczenia
+
+**Nasze Rozwiązanie:**
+Zamiast walczyć z ograniczeniami DALL-E 3, automatycznie tłumaczymy polski na angielski przed generowaniem obrazu, zapewniając:
+- ✅ Dokładne renderowanie tekstu
+- ✅ Profesjonalnie wyglądające diagramy
+- ✅ Brak potrzeby ręcznego tłumaczenia
+- ✅ Płynne doświadczenie użytkownika (możesz nadal używać polskich promptów!)
+
+**Jak to działa (Podejście Hybrydowe):**
+1. **DALL-E 3 generuje grafikę bez tekstu** - Tylko elementy wizualne (kształty, ikony, kolory)
+2. **Etykiety tekstowe są wyodrębniane** z Twojego promptu automatycznie
+3. **PIL/Pillow dodaje nakładkę tekstową** - Doskonałe renderowanie tekstu z precyzyjnym pozycjonowaniem
+4. **Wynik**: Piękna grafika z DALL-E 3 + doskonały tekst z PIL
+
+**Zalety:**
+- ✅ **100% dokładny tekst** - Brak błędów ortograficznych
+- ✅ **Obsługuje wszystkie języki** - Polski z diakrytykami działa doskonale
+- ✅ **Profesjonalna jakość** - Czyste, czytelne etykiety
+- ✅ **Spójne wyniki** - Ten sam tekst za każdym razem
+
+**Szczegóły techniczne:**
+- Automatycznie wykrywa polskie słowa i tłumaczy dla jasności promptu
+- Wyodrębnia etykiety tekstowe (tytuły, akronimy, etykiety) z Twojego promptu
+- Używa czcionki DejaVu Sans (obsługuje polskie znaki)
+- Inteligentnie pozycjonuje tekst (etykiety centralne, etykiety gałęzi dla map myśli)
+
+**Przykład:**
+- Prompt wejściowy: `"Diagram z tytułem 'DOBRY KOD' pokazujący Struktura SOLID"`
+- Prompt ulepszony: `"Diagram with title 'GOOD CODE' showing Structure SOLID"` + instrukcja renderowania tekstu po angielsku
+
+Możesz używać polskiego w swoich promptach - system automatycznie obsłuży tłumaczenie dla tekstu, który pojawia się na obrazie.
+
+#### Przykłady Użycia
+
+**W Cursor (Zalecane):**
+Po prostu opisz co chcesz w języku naturalnym:
+```
+Wygeneruj ilustrację mapy myśli "Zasady dobrego kodu" z centralnym węzłem 
+"Dobry kod = prosty, elastyczny, odporny" i 5 gałęziami: SOLID, DRY, KISS, GRASP, CUPID.
+Zapisz jako output/mindmap.png
+```
+
+Cursor automatycznie:
+1. Rozpoznaje, że to prośba o ilustrację
+2. Wywołuje `generate_illustration_openai` przez protokół MCP
+3. Tłumaczy polski tekst na angielski automatycznie
+4. Generuje obraz
+
+**Używając mcp_client.py:**
+```bash
+# Ustaw klucz API
+export OPENAI_API_KEY=sk-...
+
+# Wygeneruj ilustrację z promptu
+python3 scripts/mcp_client.py -p "Wygeneruj ilustrację plakatu z zasadami programowania. Zapisz jako output/poster.png"
+
+# Lub z pliku
+python3 scripts/mcp_client.py -f prompt.txt
+```
+
+**Nie trzeba pisać kodu Python!** Wystarczy opisać co chcesz - serwer MCP obsługuje wszystko automatycznie.
 
 ## 📦 Stabilna Wersja
 

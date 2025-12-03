@@ -5,6 +5,7 @@ Może czytać prompt z konsoli lub z pliku.
 """
 
 import json
+import os
 import subprocess
 import sys
 import argparse
@@ -18,17 +19,28 @@ class MCPClient:
         
     def start_server(self):
         """Uruchom MCP server przez docker exec"""
+        # Check for OPENAI_API_KEY in environment and pass it to container
+        env = os.environ.copy()
+        openai_key = env.get("OPENAI_API_KEY")
+        
         cmd = [
-            "docker", "exec", "-i", "mcp-documentation-server",
-            "python", "src/server.py"
+            "docker", "exec", "-i", "mcp-documentation-server"
         ]
+        
+        # If OPENAI_API_KEY is set, pass it to the container
+        if openai_key:
+            cmd.extend(["-e", f"OPENAI_API_KEY={openai_key}"])
+        
+        cmd.extend(["python", "src/server.py"])
+        
         self.process = subprocess.Popen(
             cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            bufsize=0
+            bufsize=0,
+            env=env
         )
         # Inicjalizuj połączenie
         self.initialize()
@@ -196,6 +208,73 @@ class MCPClient:
                     "format": "png" if ".png" in prompt.lower() else "svg"
                 }
             }
+        elif "generate_illustration_openai" in prompt_lower or "generate_image_openai" in prompt_lower or "generate_icon_openai" in prompt_lower or "dall-e" in prompt_lower or "openai" in prompt_lower:
+            # OpenAI image generation tools
+            output_path = self.extract_output_path(prompt) or "output/openai_image.png"
+            
+            # Determine which tool to use
+            if "icon" in prompt_lower or "ikona" in prompt_lower:
+                tool_name = "generate_icon_openai"
+                style = "flat design, minimalist, simple"
+            elif "illustration" in prompt_lower or "ilustracja" in prompt_lower or "plakat" in prompt_lower or "poster" in prompt_lower:
+                tool_name = "generate_illustration_openai"
+                style = "professional, technical illustration"
+            else:
+                tool_name = "generate_image_openai"
+                style = None
+            
+            # Extract prompt text (remove tool name and output path)
+            prompt_text = prompt
+            # Remove common prefixes
+            for prefix in ["wygeneruj", "generate", "create", "make", "zrób"]:
+                if prompt_text.lower().startswith(prefix):
+                    prompt_text = prompt_text[len(prefix):].strip()
+            
+            # Remove tool name mentions
+            prompt_text = prompt_text.replace("generate_illustration_openai", "")
+            prompt_text = prompt_text.replace("generate_image_openai", "")
+            prompt_text = prompt_text.replace("generate_icon_openai", "")
+            prompt_text = prompt_text.replace("używając", "").replace("using", "")
+            
+            # Remove output path mentions
+            if "zapisz" in prompt_text.lower():
+                prompt_text = prompt_text.split("zapisz")[0]
+            if "save" in prompt_text.lower():
+                prompt_text = prompt_text.split("save")[0]
+            if "output/" in prompt_text.lower():
+                parts = prompt_text.lower().split("output/")
+                prompt_text = parts[0]
+            
+            prompt_text = prompt_text.strip()
+            
+            if tool_name == "generate_image_openai":
+                return {
+                    "tool": tool_name,
+                    "arguments": {
+                        "prompt": prompt_text,
+                        "output_path": output_path,
+                        "size": "1024x1024",
+                        "quality": "hd" if "hd" in prompt_lower or "high quality" in prompt_lower else "standard"
+                    }
+                }
+            elif tool_name == "generate_icon_openai":
+                return {
+                    "tool": tool_name,
+                    "arguments": {
+                        "prompt": prompt_text,
+                        "output_path": output_path,
+                        "style": style
+                    }
+                }
+            else:  # generate_illustration_openai
+                return {
+                    "tool": tool_name,
+                    "arguments": {
+                        "prompt": prompt_text,
+                        "output_path": output_path,
+                        "style": style
+                    }
+                }
         else:
             # Domyślnie C4 context
             content = self.generate_c4_from_prompt(prompt, "context")
