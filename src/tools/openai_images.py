@@ -2,16 +2,157 @@
 
 import os
 import asyncio
-from typing import Literal, Optional
+import re
+from typing import Literal, Optional, Dict, Set
 from pathlib import Path
 
 from utils.file_manager import ensure_output_directory, write_binary_file
+from utils.polish_support import POLISH_CHARS
 
 # OpenAI configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "dall-e-3")
 OPENAI_DEFAULT_SIZE = os.getenv("OPENAI_IMAGE_SIZE", "1024x1024")
 OPENAI_DEFAULT_QUALITY = os.getenv("OPENAI_IMAGE_QUALITY", "standard")
+
+# Translation cache to avoid repeated API calls
+_translation_cache: Dict[str, str] = {}
+
+# Manual dictionary for common terms (faster than translation)
+MANUAL_TRANSLATIONS: Dict[str, str] = {
+    "Struktura": "Structure",
+    "Elastyczny": "Flexible",
+    "Elastyczna": "Flexible",
+    "Odporny": "Resilient",
+    "Odporna": "Resilient",
+    "Prosty": "Simple",
+    "Prosta": "Simple",
+    "DOBRY KOD": "GOOD CODE",
+    "ZASADY DOBREGO KODU": "PRINCIPLES OF GOOD CODE",
+    "Powtarzalność": "Repetition",
+    "Prostota": "Simplicity",
+    "Projektowanie": "Design",
+    "Empatia kodu": "Code Empathy",
+    "kod": "code",
+    "Kod": "Code",
+    "KOD": "CODE",
+}
+
+
+def _detect_polish_words(text: str) -> Set[str]:
+    """
+    Detect Polish words in text by finding words containing Polish diacritics.
+    
+    Args:
+        text: Text to analyze
+        
+    Returns:
+        Set of detected Polish words
+    """
+    polish_words = set()
+    
+    # Polish diacritics pattern
+    polish_chars_pattern = r'[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]'
+    
+    # Find all words (sequences of letters, including Polish characters)
+    words = re.findall(r'\b\w+\b', text)
+    
+    for word in words:
+        # Check if word contains Polish characters
+        if re.search(polish_chars_pattern, word):
+            # Filter out very short words and common English words that might have similar chars
+            if len(word) > 2 and word.lower() not in ['i', 'a', 'o', 'u']:
+                polish_words.add(word)
+    
+    return polish_words
+
+
+def _translate_polish_word(word: str) -> str:
+    """
+    Translate a Polish word to English.
+    Uses manual dictionary first, then falls back to automatic translation.
+    
+    Args:
+        word: Polish word to translate
+        
+    Returns:
+        English translation
+    """
+    # Check manual dictionary first (fastest)
+    if word in MANUAL_TRANSLATIONS:
+        return MANUAL_TRANSLATIONS[word]
+    
+    # Check cache
+    if word in _translation_cache:
+        return _translation_cache[word]
+    
+    # Try automatic translation
+    try:
+        from deep_translator import GoogleTranslator
+        
+        # Translate from Polish to English
+        translator = GoogleTranslator(source='pl', target='en')
+        translation = translator.translate(word)
+        
+        # Cache the translation
+        _translation_cache[word] = translation
+        
+        return translation
+    except Exception as e:
+        # If translation fails, return original word
+        # This prevents errors from breaking the image generation
+        print(f"Warning: Could not translate '{word}': {e}")
+        return word
+
+
+def _enhance_prompt_for_text_rendering(prompt: str) -> str:
+    """
+    Enhance prompt to ensure English text rendering in DALL-E 3 images.
+    Automatically detects Polish words and translates them to English.
+    
+    DALL-E 3 has limited support for non-English text, especially with diacritics.
+    This function:
+    1. Detects Polish words in the prompt
+    2. Translates them to English (using cache and manual dictionary)
+    3. Replaces Polish words with English translations
+    4. Adds explicit instruction for English text rendering
+    
+    Args:
+        prompt: Original prompt (may contain Polish text)
+        
+    Returns:
+        Enhanced prompt with English text for rendering
+    """
+    # Detect Polish words
+    polish_words = _detect_polish_words(prompt)
+    
+    # Start with original prompt
+    enhanced = prompt
+    
+    # Replace detected Polish words with English translations
+    for polish_word in polish_words:
+        english_word = _translate_polish_word(polish_word)
+        if english_word != polish_word:
+            # Replace word, preserving case and context
+            # Use word boundaries to avoid partial matches
+            pattern = r'\b' + re.escape(polish_word) + r'\b'
+            enhanced = re.sub(pattern, english_word, enhanced, flags=re.IGNORECASE)
+    
+    # Also check manual translations for common terms (case-insensitive)
+    for polish, english in MANUAL_TRANSLATIONS.items():
+        # Replace with word boundaries to avoid partial matches
+        pattern = r'\b' + re.escape(polish) + r'\b'
+        enhanced = re.sub(pattern, english, enhanced, flags=re.IGNORECASE)
+    
+    # Add explicit instruction for text rendering
+    text_instruction = (
+        "\n\nIMPORTANT TEXT RENDERING INSTRUCTIONS: "
+        "All visible text labels, titles, and words in the image must be written in English. "
+        "Polish text in this prompt describes the content and layout, but any text that appears "
+        "visually in the generated image should be in English for accurate rendering."
+    )
+    
+    return enhanced + text_instruction
 
 
 def _check_openai_available() -> tuple[bool, Optional[str]]:
@@ -68,11 +209,14 @@ async def generate_image_openai(
         # Initialize OpenAI client
         client = AsyncOpenAI(api_key=OPENAI_API_KEY)
         
+        # Enhance prompt for better text rendering (auto-translate Polish to English)
+        enhanced_prompt = _enhance_prompt_for_text_rendering(prompt)
+        
         # Generate image
         try:
             response = await client.images.generate(
                 model=OPENAI_MODEL,
-                prompt=prompt,
+                prompt=enhanced_prompt,
                 size=size,
                 quality=quality,
                 n=1
