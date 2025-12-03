@@ -224,11 +224,83 @@ Add the following configuration to your Cursor MCP settings:
 
 See [QUICKSTART.md](QUICKSTART.md) for detailed Docker setup instructions.
 
+## Method 3: Railway Deployment (Advanced)
+
+> **⚠️ Important Note:** Railway deployment is **not directly compatible** with Cursor MCP integration. MCP servers communicate via stdio (stdin/stdout), which requires a local process that Cursor can spawn as a child process. Railway-deployed servers run in the cloud and don't expose stdio interfaces.
+
+### Why Railway + Cursor is Challenging
+
+- **MCP Protocol**: Uses stdio (stdin/stdout) for communication
+- **Cursor Requirement**: Needs to spawn server as local child process
+- **Railway Limitation**: Cloud-deployed processes don't expose stdio to external clients
+
+### Workaround Options
+
+If you need to use Railway-deployed server with Cursor, you have these options:
+
+#### Option 1: Use Railway CLI (Recommended Workaround)
+
+You can use Railway CLI to run the server locally while using Railway's infrastructure:
+
+```json
+{
+  "mcpServers": {
+    "mcp-doc-generator": {
+      "command": "railway",
+      "args": [
+        "run",
+        "python",
+        "src/server.py"
+      ],
+      "env": {
+        "RAILWAY_ENVIRONMENT": "production"
+      }
+    }
+  }
+}
+```
+
+**Requirements:**
+- Railway CLI installed: `npm install -g @railway/cli`
+- Logged in: `railway login`
+- Project linked: `railway link`
+
+**Note:** This runs the server locally but uses Railway's environment variables and configuration.
+
+#### Option 2: SSH Tunnel (Advanced)
+
+If Railway provides SSH access, you could create an SSH tunnel, but this is complex and not recommended.
+
+#### Option 3: Use Local Deployment for Cursor
+
+**Recommended approach:** Use local deployment (npx or Docker) for Cursor integration, and use Railway deployment for other use cases (API access, scheduled tasks, etc.).
+
+```json
+{
+  "mcpServers": {
+    "mcp-doc-generator": {
+      "command": "npx",
+      "args": [
+        "github:lukaszzychal/mcp-doc-generator#v0.1.7"
+      ]
+    }
+  }
+}
+```
+
+### When to Use Railway vs Local
+
+- **Use Local (npx/Docker) for Cursor**: ✅ Direct stdio communication, instant response
+- **Use Railway for**: Cloud deployment, API access, scheduled tasks, team sharing
+
+See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for Railway deployment guide.
+
 ## See also
 
 - [NPX_INSTALLATION.md](NPX_INSTALLATION.md) - Detailed npx installation guide
 - [QUICKSTART.md](QUICKSTART.md) - Quick start with Docker
 - [USAGE_GUIDE.md](USAGE_GUIDE.md) - Complete usage guide
+- [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) - Railway deployment guide
 
 ---
 
@@ -452,9 +524,81 @@ Dodaj następującą konfigurację do ustawień MCP w Cursor:
 
 Zobacz [QUICKSTART.md](QUICKSTART.md) dla szczegółowych instrukcji konfiguracji Docker.
 
+## Metoda 3: Wdrożenie Railway (Zaawansowane)
+
+> **⚠️ Ważna Uwaga:** Wdrożenie Railway **nie jest bezpośrednio kompatybilne** z integracją Cursor MCP. Serwery MCP komunikują się przez stdio (stdin/stdout), co wymaga lokalnego procesu, który Cursor może uruchomić jako proces potomny. Serwery wdrożone na Railway działają w chmurze i nie udostępniają interfejsów stdio.
+
+### Dlaczego Railway + Cursor Jest Wyzwaniem
+
+- **Protokół MCP**: Używa stdio (stdin/stdout) do komunikacji
+- **Wymaganie Cursor**: Musi uruchomić serwer jako lokalny proces potomny
+- **Ograniczenie Railway**: Procesy wdrożone w chmurze nie udostępniają stdio zewnętrznym klientom
+
+### Opcje Obejścia
+
+Jeśli potrzebujesz użyć serwera wdrożonego na Railway z Cursor, masz te opcje:
+
+#### Opcja 1: Użyj Railway CLI (Zalecane Obejście)
+
+Możesz użyć Railway CLI do uruchomienia serwera lokalnie, używając infrastruktury Railway:
+
+```json
+{
+  "mcpServers": {
+    "mcp-doc-generator": {
+      "command": "railway",
+      "args": [
+        "run",
+        "python",
+        "src/server.py"
+      ],
+      "env": {
+        "RAILWAY_ENVIRONMENT": "production"
+      }
+    }
+  }
+}
+```
+
+**Wymagania:**
+- Railway CLI zainstalowany: `npm install -g @railway/cli`
+- Zalogowany: `railway login`
+- Projekt połączony: `railway link`
+
+**Uwaga:** To uruchamia serwer lokalnie, ale używa zmiennych środowiskowych i konfiguracji Railway.
+
+#### Opcja 2: Tunel SSH (Zaawansowane)
+
+Jeśli Railway zapewnia dostęp SSH, możesz utworzyć tunel SSH, ale to jest skomplikowane i nie zalecane.
+
+#### Opcja 3: Użyj Lokalnego Wdrożenia dla Cursor
+
+**Zalecane podejście:** Użyj lokalnego wdrożenia (npx lub Docker) dla integracji Cursor, a wdrożenia Railway dla innych przypadków użycia (dostęp API, zaplanowane zadania, itp.).
+
+```json
+{
+  "mcpServers": {
+    "mcp-doc-generator": {
+      "command": "npx",
+      "args": [
+        "github:lukaszzychal/mcp-doc-generator#v0.1.7"
+      ]
+    }
+  }
+}
+```
+
+### Kiedy Używać Railway vs Lokalnie
+
+- **Użyj Lokalnie (npx/Docker) dla Cursor**: ✅ Bezpośrednia komunikacja stdio, natychmiastowa odpowiedź
+- **Użyj Railway dla**: Wdrożenia w chmurze, dostęp API, zaplanowane zadania, udostępnianie zespołowi
+
+Zobacz [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) dla przewodnika wdrożenia Railway.
+
 ## Zobacz także
 
 - [NPX_INSTALLATION.md](NPX_INSTALLATION.md) - Szczegółowy przewodnik instalacji npx
 - [QUICKSTART.md](QUICKSTART.md) - Szybki start z Docker
 - [USAGE_GUIDE.md](USAGE_GUIDE.md) - Kompletny przewodnik użycia
+- [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) - Przewodnik wdrożenia Railway
 
