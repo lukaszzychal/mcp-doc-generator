@@ -14,9 +14,9 @@ RUN apt-get update && apt-get install -y \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Install mermaid-cli with cache mount for faster rebuilds
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g @mermaid-js/mermaid-cli
+# Install mermaid-cli
+# Note: Railway has its own caching mechanisms, so we don't use cache mounts
+RUN npm install -g @mermaid-js/mermaid-cli
 # Note: draw.io export will use online API or Python library as fallback
 
 # Set working directory
@@ -26,10 +26,9 @@ WORKDIR /app
 # This layer will be cached if requirements.txt doesn't change
 COPY requirements.txt .
 
-# Install Python dependencies with cache mount
-# Cache mount speeds up pip install on subsequent builds
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+# Note: Railway has its own caching mechanisms, so we don't use cache mounts
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 # This layer changes most frequently, so it's last
