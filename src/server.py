@@ -14,7 +14,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 # Import all tool modules
-from tools import plantuml, mermaid, graphviz, drawio, export as export_tools
+from tools import plantuml, mermaid, graphviz, drawio, export as export_tools, openai_images
 
 # Create MCP server instance
 app = Server("mcp-documentation-server")
@@ -333,6 +333,90 @@ async def list_tools() -> list[Tool]:
         ),
     ])
     
+    # OpenAI image generation tools
+    tools.extend([
+        Tool(
+            name="generate_image_openai",
+            description="Generate image using OpenAI DALL-E 3. Supports Polish prompts. "
+                       "Requires OPENAI_API_KEY environment variable. "
+                       "If API key is not configured, returns helpful error message.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Image description prompt (supports Polish, e.g., 'Kolorowy zając w stylu kreskówki')"
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Output file path (e.g., 'output/rabbit.png')"
+                    },
+                    "size": {
+                        "type": "string",
+                        "enum": ["1024x1024", "1024x1792", "1792x1024"],
+                        "default": "1024x1024",
+                        "description": "Image size"
+                    },
+                    "quality": {
+                        "type": "string",
+                        "enum": ["standard", "hd"],
+                        "default": "standard",
+                        "description": "Image quality (standard or hd)"
+                    }
+                },
+                "required": ["prompt", "output_path"]
+            }
+        ),
+        Tool(
+            name="generate_icon_openai",
+            description="Generate icon using OpenAI DALL-E 3. Optimized for icon generation. "
+                       "Requires OPENAI_API_KEY environment variable.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Icon description (e.g., 'server icon', 'database icon')"
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Output file path"
+                    },
+                    "style": {
+                        "type": "string",
+                        "default": "flat design, minimalist, simple",
+                        "description": "Additional style description"
+                    }
+                },
+                "required": ["prompt", "output_path"]
+            }
+        ),
+        Tool(
+            name="generate_illustration_openai",
+            description="Generate illustration using OpenAI DALL-E 3. Optimized for concept illustrations. "
+                       "Requires OPENAI_API_KEY environment variable.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "Illustration description (e.g., 'Architecture diagram of microservices')"
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Output file path"
+                    },
+                    "style": {
+                        "type": "string",
+                        "default": "professional, technical illustration",
+                        "description": "Additional style description"
+                    }
+                },
+                "required": ["prompt", "output_path"]
+            }
+        ),
+    ])
+    
     return tools
 
 
@@ -421,6 +505,27 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 arguments["template_type"],
                 arguments["variables"],
                 arguments["output_path"]
+            )
+        
+        # OpenAI image generation tools
+        elif name == "generate_image_openai":
+            result = await openai_images.generate_image_openai(
+                arguments["prompt"],
+                arguments["output_path"],
+                arguments.get("size", "1024x1024"),
+                arguments.get("quality", "standard")
+            )
+        elif name == "generate_icon_openai":
+            result = await openai_images.generate_icon_openai(
+                arguments["prompt"],
+                arguments["output_path"],
+                arguments.get("style", "flat design, minimalist, simple")
+            )
+        elif name == "generate_illustration_openai":
+            result = await openai_images.generate_illustration_openai(
+                arguments["prompt"],
+                arguments["output_path"],
+                arguments.get("style", "professional, technical illustration")
             )
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]

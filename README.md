@@ -49,6 +49,21 @@ npx github:lukaszzychal/mcp-doc-generator#feat/test-npx-installation
 
 For detailed instructions, see [NPX_INSTALLATION.md](docs/NPX_INSTALLATION.md).
 
+### OpenAI Image Generation (Optional)
+
+To use AI image generation tools (`generate_image_openai`, `generate_icon_openai`, `generate_illustration_openai`):
+
+1. **Set environment variable:**
+   ```bash
+   export OPENAI_API_KEY=sk-...
+   ```
+
+2. **Get API key:** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+
+3. **Pricing:** $0.04-0.12 per image (see [ROADMAP.md](docs/ROADMAP.md) for details)
+
+**Note:** OpenAI tools are optional. All other tools work without API key. If API key is not configured, you'll receive a helpful error message with setup instructions.
+
 ## 📦 Stable Release
 
 **Latest stable version:** [v0.1.7](https://github.com/lukaszzychal/mcp-doc-generator/releases/tag/v0.1.7)
@@ -105,9 +120,12 @@ See [DOCKER_BUILD_OPTIMIZATION.md](docs/DOCKER_BUILD_OPTIMIZATION.md) for detail
 6. **generate_gantt** - Gantt charts
 7. **generate_dependency_graph** - Graphviz dependency graphs
 8. **generate_cloud_diagram** - draw.io cloud architecture diagrams
-9. **export_to_pdf** - Markdown to PDF export
-10. **export_to_docx** - Markdown to DOCX export
-11. **create_document_from_template** - Documents from templates (ADR, API Spec, C4, Microservices)
+9. **generate_image_openai** - AI image generation using DALL-E 3 (requires OPENAI_API_KEY)
+10. **generate_icon_openai** - AI icon generation using DALL-E 3 (requires OPENAI_API_KEY)
+11. **generate_illustration_openai** - AI illustration generation using DALL-E 3 (requires OPENAI_API_KEY)
+12. **export_to_pdf** - Markdown to PDF export
+13. **export_to_docx** - Markdown to DOCX export
+14. **create_document_from_template** - Documents from templates (ADR, API Spec, C4, Microservices)
 
 ## 📁 Project Structure
 
